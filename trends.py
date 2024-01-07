@@ -10,6 +10,7 @@ import tempfile
 import openai
 from colorama import Fore, Style
 import colorama
+from urllib.parse import quote
 from openai import OpenAI
 
 BASE_PATH = '/Users/romain-pro/Desktop/factoryapp'
@@ -38,6 +39,8 @@ def extract_company_names_from_urls(urls):
     return company_names
 
 from database.models import User, UserSource
+from database.models import UserTrends
+
 
 def get_user_sources(user_id):
     try:
@@ -52,6 +55,7 @@ def get_user_sources(user_id):
 
 # Récupération des sources pour l'utilisateur avec ID = 1
 user_sources = get_user_sources(1)
+
 
 ### TRAITEMENT COMPETITORS ###
 
@@ -178,20 +182,11 @@ for blog_url, company_name in zip(found_blog_urls, company_names):
     temp_file_name = scraper_et_sauvegarder_blog(blog_url)
     temp_response_file = analyser_contenu_avec_IA(temp_file_name, prompt_extractgpt, company_name)
     if temp_response_file:
-        temp_files.append(temp_response_file)
-    os.remove(temp_file_name)  # Supprimer le fichier temporaire après analyse
-
-# Compilation des fichiers temporaires
-compiled_file_path = os.path.join(TEMP_DIR, 'set_up_variables.txt')
-with open(compiled_file_path, 'w') as compiled_file:
-    for file_path in temp_files:
-        with open(file_path, 'r') as temp_file:
-            compiled_file.write(temp_file.read() + '\n')
-        os.remove(file_path)  # Supprimer le fichier temporaire
-
-# Lire le fichier compilé et configurer les variables
-with open(compiled_file_path, 'r') as compiled_file:
-    exec(compiled_file.read())
+        # Modification ici: Renommer le fichier temporaire pour chaque entreprise
+        final_file_name = os.path.join(TEMP_DIR, f'set_up_blog.{company_name}.txt')
+        os.rename(temp_response_file, final_file_name)
+        print(f"Résultats pour {company_name} sauvegardés dans {final_file_name}")
+    os.remove(temp_file_name)  # Supprimer le fichier HTML temporaire après analyse
 
 # Fonction pour imprimer les articles
 def imprimer_articles(json_response):
@@ -207,10 +202,17 @@ def imprimer_articles(json_response):
 
 # Imprimer les articles pour chaque entreprise
 for company_name in company_names:
-    json_response_var = f'json_response_{company_name}'
-    if json_response_var in globals():
-        print(f"Articles pour {company_name}:")
-        imprimer_articles(globals()[json_response_var])
+    file_path = os.path.join(TEMP_DIR, f'set_up_blog.{company_name}.txt')
+    try:
+        with open(file_path, 'r') as file:
+            json_response = file.read()
+            print(f"Articles pour {company_name}:")
+            imprimer_articles(json_response)
+    except FileNotFoundError:
+        print(f"Le fichier pour {company_name} est introuvable.")
+    except Exception as e:
+        print(f"Erreur lors de la lecture du fichier pour {company_name}: {e}")
+
 
 
 ### TRAITEMENT REFERENCES ###
@@ -286,4 +288,178 @@ for company_name in company_names:
         print(f"Articles de référence pour {company_name}:")
         imprimer_articles(globals()[json_response_var])
 
-### TRAITEMENTs ET ANALYSES DES CONTENUS ###
+
+
+### CLEAN AND GROUP DATA ###
+
+
+# Chemin du répertoire temporaire
+temp_dir_path = '/Users/romain-pro/Desktop/factoryapp/Temp/'
+output_file_path = '/Users/romain-pro/Desktop/factoryapp/Temp/combined_articles.json'
+
+def clean_and_combine_json(directory):
+    combined_data = {}
+    article_counter = 1  # Compteur pour la renumérotation unique des articles
+
+    for filename in os.listdir(directory):
+        if filename.endswith('.txt'):  # Traiter uniquement les fichiers .txt
+            file_path = os.path.join(directory, filename)
+            with open(file_path, 'r', encoding='utf-8') as file:
+                content = file.read().split("'''", 1)[1].rsplit("'''", 1)[0].strip()
+                try:
+                    data = json.loads(content)
+                    for article_key in list(data.keys()):
+                        new_key = f"article_{article_counter}"  # Créer une nouvelle clé unique
+                        combined_data[new_key] = data[article_key]
+                        article_counter += 1  # Incrémenter le compteur pour le prochain article
+                except json.JSONDecodeError as e:
+                    print(f"Erreur de décodage JSON dans le fichier {file_path}: {e}")
+
+    return combined_data
+
+# Nettoyer et combiner les contenus JSON de tous les fichiers du répertoire
+combined_data = clean_and_combine_json(temp_dir_path)
+
+# Sauvegarder dans un nouveau fichier
+with open(output_file_path, 'w', encoding='utf-8') as output_file:
+    json.dump(combined_data, output_file, indent=4, ensure_ascii=False)
+
+print("Fusion terminée, fichier créé :", output_file_path)
+
+
+
+### TRAITEMENTs ET  ###
+
+# Chemin du fichier combiné
+combined_file_path = '/Users/romain-pro/Desktop/factoryapp/Temp/combined_articles.json'
+
+
+
+def find_link_after_text(url, target_text):
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        target = soup.find(text=re.compile(target_text))
+        if target:
+            next_link = target.find_next('a', href=True)
+            if next_link and next_link['href']:
+                return next_link['href']
+    return None
+
+def update_article_links(file_path, target_website, target_text):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+
+    updated_count = 0
+    for article_key in data:
+        if target_website in data[article_key]['lien']:
+            new_link = find_link_after_text(data[article_key]['lien'], target_text)
+            if new_link:
+                data[article_key]['lien'] = new_link
+                updated_count += 1
+
+    if updated_count > 0:
+        with open(file_path, 'w', encoding='utf-8') as file:
+            json.dump(data, file, indent=4, ensure_ascii=False)
+        return f"{updated_count} liens mis à jour avec succès."
+    else:
+        return "Aucun lien à mettre à jour n'a été trouvé."
+
+# Appel de la fonction
+result = update_article_links(combined_file_path, "www.hralert.be", "Pour aller plus loin")
+print(result)
+
+### ANALYSES DES CONTENUS ###
+
+user_id = 1  
+
+# Fonction pour sauvegarder les informations de l'article dans la base de données
+def save_to_database(article_info, user_id):
+    try:
+        user = User.objects.get(pk=user_id)  # Récupère l'objet utilisateur
+        # Crée un nouvel objet UserTrends avec les informations de l'article
+        user_trend = UserTrends(
+            user=user,
+            titre=article_info['titre'],
+            lien=article_info['lien'],
+            date=article_info['date'],
+            main_topics=article_info['Main_topics'],
+            topics_secondaires=article_info['Topics_secondaires'],
+            mots_cles=article_info['mots_clés'],
+            resume=article_info['Résumé']
+        )
+        user_trend.save()  # Sauvegarde l'objet dans la base de données
+        print(f"L'article '{article_info['titre']}' a été enregistré pour l'utilisateur {user.name}.")
+    except User.DoesNotExist:
+        print("Utilisateur non trouvé.")
+    except Exception as e:
+        print(f"Erreur lors de l'enregistrement dans la base de données: {e}")
+
+combined_file_path = '/Users/romain-pro/Desktop/factoryapp/Temp/combined_articles.json'
+
+TRENDS_PATH = os.path.join(BASE_PATH, 'Trends')
+combined_file_path = os.path.join(BASE_PATH, 'Temp', 'combined_articles.json')
+
+# Assurer la création du dossier Trends
+os.makedirs(TRENDS_PATH, exist_ok=True)
+
+def scrape_article_content(article):
+    lien = article['lien']  # Extraction du lien
+    response = requests.get(lien)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        text_content = ' '.join(soup.stripped_strings)
+        article['contenu'] = text_content
+        return article
+    else:
+        return {"erreur": f"Impossible de récupérer le contenu de {lien}"}
+
+def lire_prompt_analystgpt():
+    prompt_analystgpt_path = os.path.join(BASE_PATH, 'Prompts', 'AnalystGPT.txt')
+    with open(prompt_analystgpt_path, 'r', encoding='utf-8') as file:
+        return file.read()
+
+def analyser_article_avec_IA(article_info, prompt_analystgpt):
+    article_json = json.dumps(article_info, indent=4, ensure_ascii=False)
+    prompt_complet = prompt_analystgpt
+    messages = [{"role": "system", "content": prompt_complet}, 
+                {"role": "user", "content": article_json}]
+    try:
+        response = client.chat.completions.create(model="gpt-4-1106-preview", messages=messages)
+        if response.choices:
+            # Afficher la réponse de l'IA
+            print("Réponse de l'IA:", response.choices[0].message.content)
+            # Convertir la réponse en dictionnaire
+            return json.loads(response.choices[0].message.content)
+        else:
+            print("Aucune réponse valide reçue de AnalystGPT.")
+            return None
+    except Exception as e:
+        print(f"Erreur lors de l'analyse IA : {e}")
+        return None
+
+def enregistrer_resultat(resultat, article_number):
+    with open(os.path.join(TRENDS_PATH, f'article_{article_number}.txt'), 'w', encoding='utf-8') as file:
+        file.write(resultat)
+
+# Charger le prompt pour AnalystGPT
+prompt_analystgpt = lire_prompt_analystgpt()
+
+# Lire et traiter tous les articles
+with open(combined_file_path, 'r', encoding='utf-8') as file:
+    articles = json.load(file)
+
+# Pour chaque article, scrape le contenu, analyse-le avec l'IA et sauvegarde les résultats
+for index, (article_key, article) in enumerate(articles.items()):
+    scraped_article = scrape_article_content(article)
+    if 'erreur' not in scraped_article:
+        analysis_result = analyser_article_avec_IA(scraped_article, prompt_analystgpt)
+        if isinstance(analysis_result, dict):  # Vérifie que le résultat est un dictionnaire
+            save_to_database(analysis_result, user_id)
+        elif analysis_result is None:
+            print(f"Erreur lors de l'analyse de l'article {index + 1}. Aucun résultat à enregistrer.")
+        else:
+            print(f"Le résultat de l'analyse n'est pas dans le format attendu pour l'article {index + 1}.")
+    else:
+        print(scraped_article['erreur'])
+

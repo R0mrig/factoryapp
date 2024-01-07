@@ -1,0 +1,17 @@
+json_response_sdworx = '''{
+    "article_1": {
+        "titre": "Limitation des contrats journaliers successifs dans le travail temporaire : évitez des contributions ONSS supplémentaires.",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/talent/limitation-des-contrats-journaliers-successifs-dans-le-travail-temporaire",
+        "date": "24/11/2023"
+    },
+    "article_2": {
+        "titre": "Protection obligatoire des lanceurs d’alerte – prenez les devants",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/administration-du-personnel/protection-obligatoire-des-lanceurs-dalerte-prenez-les",
+        "date": "20/11/2023"
+    },
+    "article_3": {
+        "titre": "4 raisons de repenser votre stratégie des talents",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/talent/4-raisons-strategie-des-talents",
+        "date": "16/11/2023"
+    }
+}'''

@@ -6,6 +6,10 @@ from database.models import User
 from database.models import UserSource
 from .serializers import UserSerializer
 from .serializers import UserSourceSerializer
+from database.models import Article
+from .serializers import ArticleSerializer
+from subprocess import call
+import json
 
 
 
@@ -40,4 +44,30 @@ def user_sources(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['POST'])
+def create_article(request):
+    serializer = ArticleSerializer(data=request.data)
+    if serializer.is_valid():
+        # Récupération et stockage des données validées dans un fichier ou une variable
+        data = json.dumps({
+            "title": serializer.validated_data['title'],
+            "base_content": serializer.validated_data.get('base_content', ''),
+            "tone_of_voice": serializer.validated_data['tone_of_voice'],
+            "content_goal": serializer.validated_data['content_goal'],
+            "language": serializer.validated_data['language'],
+            "user_comment": serializer.validated_data.get('user_comment', '')
+        })
+
+        # Exécuter le script test.py avec les données validées
+        call(["python", "/Users/romain-pro/Desktop/factoryapp/test.py", data])
+
+        # Logique supplémentaire pour confirmer le succès de l'opération
+        # ...
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

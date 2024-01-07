@@ -1,78 +1,114 @@
 import os
-import re
+import django
+import requests
+import sys
 import json
+import colorama
+from colorama import Fore, Style
+from openai import OpenAI
 
+# Configuration de Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'factoryapp.settings')
+django.setup()
 
-trends_dir = '/Users/romain-pro/Desktop/factoryapp/Trends'
-sources_file_path = '/Users/romain-pro/Desktop/factoryapp/Sources.json'
-trends_file_path = '/Users/romain-pro/Desktop/factoryapp/Trends.json'
+from database.models import User, UserTrends
 
-def clean_and_update_json_file(file_path):
+# Configuration des chemins
+BASE_PATH = '/Users/romain-pro/Desktop/factoryapp'
+PROMPT_PATH = os.path.join(BASE_PATH, 'Prompts')
+
+# Initialisation de colorama
+colorama.init(autoreset=True)
+
+def open_file(filepath):
+    with open(filepath, 'r', encoding='utf-8') as infile:
+        return infile.read()
+
+# Configuration du client OpenAI
+client = OpenAI(api_key=open_file("openaiapikey.txt"))
+
+def get_user_trends_data(user_id):
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            content = file.read()
-            # Supprimer les caractères de contrôle
-            cleaned_content = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', content)
-            # Charger le contenu nettoyé comme JSON pour vérifier sa validité
-            json.loads(cleaned_content)
+        user = User.objects.get(pk=user_id)
+        user_trends = UserTrends.objects.filter(user=user)
+        titles_and_summaries = [f"{trend.titre}: {trend.resume}" for trend in user_trends]
+        return titles_and_summaries
+    except User.DoesNotExist:
+        print(Fore.RED + "Utilisateur non trouvé.")
+        return []
+    except Exception as e:
+        print(Fore.RED + f"Erreur lors de la récupération des tendances: {e}")
+        return []
 
-        # Réécrire le fichier avec le contenu nettoyé
-        with open(file_path, 'w', encoding='utf-8') as file:
-            file.write(cleaned_content)
-        return True
-    except json.JSONDecodeError as e:
-        print(f"Erreur de décodage JSON dans le fichier {file_path}: {e}")
-        return False
+def lire_prompt_writergpt():
+    prompt_writergpt_path = os.path.join(PROMPT_PATH, 'WriterGPT.txt')
+    with open(prompt_writergpt_path, 'r', encoding='utf-8') as file:
+        return file.read()
 
-def clean_and_update_all_json_files(directory):
-    for filename in os.listdir(directory):
-        if filename.endswith('.txt'):  # Filtrer les fichiers .txt
-            file_path = os.path.join(directory, filename)
-            if not clean_and_update_json_file(file_path):
-                print(f"Erreur lors de la mise à jour du fichier {file_path}")
+def create_writergpt_prompt(data, titles_and_summaries):
+    additional_content = " ".join(titles_and_summaries)
+    prompt = (
+        f"Article à créer : {data['title']} et {data['base_content']}\n"
+        f"Instructions : ton de voix : {data['tone_of_voice']}, "
+        f"objectif de contenu : {data['content_goal']}, écris en : {data['language']}.\n"
+        f"Instruction supplémentaire de l'utilisateur : {data.get('user_comment', '')}\n"
+        f"Pour t'aider à la rédaction, voici du contenu supplémentaire dont tu peux t'inspirer : {additional_content}."
+    )
+    return prompt
 
-# Chemin du répertoire contenant les fichiers à nettoyer
-trends_dir = '/Users/romain-pro/Desktop/factoryapp/Trends'
+def analyser_contenu_avec_writergpt(prompt_complet, prompt_writergpt):
+    messages = [{"role": "system", "content": prompt_writergpt}, 
+                {"role": "user", "content": prompt_complet}]
+    try:
+        response = client.chat.completions.create(model="gpt-4-1106-preview", messages=messages)
+        if response.choices:
+            return response.choices[0].message.content
+        else:
+            print(Fore.RED + "Aucune réponse valide reçue de WriterGPT.")
+            return None
+    except Exception as e:
+        print(Fore.RED + f"Erreur lors de l'analyse IA avec WriterGPT : {e}")
+        return None
 
-# Nettoyer et mettre à jour tous les fichiers JSON dans le dossier Trends
-clean_and_update_all_json_files(trends_dir)
+def envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url):
+    try:
+        with open(titre_filename, 'r', encoding='utf-8') as file:
+            titre_content = file.read()
+        with open(contenu_filename, 'r', encoding='utf-8') as file:
+            contenu_content = file.read()
+        data = {"titre": titre_content, "contenu": contenu_content}
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(webhook_url, headers=headers, json=data)
+        return response.status_code, response.text
+    except Exception as e:
+        print(Fore.RED + f"Erreur lors de l'envoi du contenu à Bubble: {e}")
+        return None, str(e)
 
+def main(data):
+    user_id = data.get("user_id", 1) 
+    titles_and_summaries = get_user_trends_data(user_id)
+    prompt_complet = create_writergpt_prompt(data, titles_and_summaries)
+    response_data = analyser_contenu_avec_writergpt(prompt_complet, lire_prompt_writergpt())
 
+    if response_data:
+        titre_genere, contenu_genere = (response_data.split("SEPARATION", 1) if "SEPARATION" in response_data else ("", ""))
+        titre_filename = "titre_genere.txt"
+        contenu_filename = "contenu_genere.txt"
+        with open(titre_filename, 'w', encoding='utf-8') as file:
+            file.write(titre_genere)
+        with open(contenu_filename, 'w', encoding='utf-8') as file:
+            file.write(contenu_genere)
+        webhook_url = "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/content_generation_content"
+        status, text = envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url)
+        print(f"Envoi des données - Status: {status}, Response: {text}")
+    else:
+        print(Fore.RED + "Erreur lors de la génération du contenu.")
 
-def combine_json_files(directory):
-    sources_data = []
-    trends_data = []
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        data = json.loads(sys.argv[1])
+        print("Données reçues:", data)  # Ajoutez cette ligne pour le débogage
 
-    for filename in os.listdir(directory):
-        if filename.endswith('.txt'):  # Traiter uniquement les fichiers .txt
-            file_path = os.path.join(directory, filename)
-            with open(file_path, 'r', encoding='utf-8') as file:
-                try:
-                    data = json.load(file)
-                    for article_key, article_data in data.items():
-                        sources_data.append({
-                            "lien": article_data.get("lien"),
-                            "date": article_data.get("date"),
-                            "mots_clés": article_data.get("mots_clés")
-                        })
-                        trends_data.append({
-                            "Main_topics": article_data.get("Main_topics"),
-                            "Topics_secondaires": article_data.get("Topics_secondaires"),
-                            "mots_clés": article_data.get("mots_clés")
-                        })
-                except json.JSONDecodeError as e:
-                    print(f"Erreur de décodage JSON dans le fichier {file_path}: {e}")
-
-    return sources_data, trends_data
-
-# Combinaison des fichiers JSON
-sources_data, trends_data = combine_json_files(trends_dir)
-
-# Sauvegarde des données combinées
-with open(sources_file_path, 'w', encoding='utf-8') as file:
-    json.dump(sources_data, file, indent=4, ensure_ascii=False)
-
-with open(trends_file_path, 'w', encoding='utf-8') as file:
-    json.dump(trends_data, file, indent=4, ensure_ascii=False)
-
-print("Fichiers 'Sources' et 'Trends' créés avec succès.")
+        main(data)
+    else:
+        print("Aucune donnée fournie.")

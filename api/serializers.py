@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from database.models import User
 from database.models import UserSource, User
+from database.models import Article
+
 
 
 
@@ -18,7 +20,7 @@ class UserSourceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserSource
-        fields = ['user_email', 'competitors', 'linkedin', 'references', 'youtube']
+        fields = ['title', 'base_content', 'content', 'user_comment', 'tone_of_voice', 'content_goal', 'language']
 
     def create(self, validated_data):
         user_email = validated_data.pop('user_email', None)
@@ -27,3 +29,10 @@ class UserSourceSerializer(serializers.ModelSerializer):
             validated_data['user'] = user
         user_source = UserSource.objects.create(**validated_data)
         return user_source
+    
+
+
+class ArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = ['title', 'base_content', 'content', 'tone_of_voice', 'content_goal', 'language', 'user_comment']

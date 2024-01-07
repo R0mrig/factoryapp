@@ -35,3 +35,13 @@ class UserTrends(models.Model):
 
     def __str__(self):
         return f"Trend for {self.user.name}: {self.titre}"
+    
+
+class Article(models.Model):
+    title = models.CharField(max_length=200)
+    base_content = models.TextField(blank=True, null=True)
+    content = models.TextField(blank=True)
+    user_comment = models.TextField(blank=True, null=True)  # Ajouter le champ user_comment
+    tone_of_voice = models.CharField(max_length=50)
+    content_goal = models.CharField(max_length=200)
+    language = models.CharField(max_length=50)

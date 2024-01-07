@@ -143,5 +143,3 @@ if response_data:
     webhook_url = "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/content_generation_content"
     status, text = envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url)
     print(f"Envoi des données - Status: {status}, Response: {text}")
-
- 
