@@ -1,17 +1,17 @@
 import os
-import json
 import django
 import requests
-import time
+import sys
+import json
 import colorama
 from colorama import Fore, Style
 from openai import OpenAI
 
+# Configuration de Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'factoryapp.settings')
 django.setup()
 
 from database.models import User, UserTrends
-
 
 # Configuration des chemins
 BASE_PATH = '/Users/romain-pro/Desktop/factoryapp'
@@ -23,7 +23,7 @@ colorama.init(autoreset=True)
 def open_file(filepath):
     with open(filepath, 'r', encoding='utf-8') as infile:
         return infile.read()
-    
+
 # Configuration du client OpenAI
 client = OpenAI(api_key=open_file("openaiapikey.txt"))
 
@@ -51,7 +51,7 @@ def create_writergpt_prompt(data, titles_and_summaries):
         f"Article à créer : {data['title']} et {data['base_content']}\n"
         f"Instructions : ton de voix : {data['tone_of_voice']}, "
         f"objectif de contenu : {data['content_goal']}, écris en : {data['language']}.\n"
-        f"Instruction supplémentaire de l'utilisateur : {data['user_comment']}\n"
+        f"Instruction supplémentaire de l'utilisateur : {data.get('user_comment', '')}\n"
         f"Pour t'aider à la rédaction, voici du contenu supplémentaire dont tu peux t'inspirer : {additional_content}."
     )
     return prompt
@@ -62,12 +62,7 @@ def analyser_contenu_avec_writergpt(prompt_complet, prompt_writergpt):
     try:
         response = client.chat.completions.create(model="gpt-4-1106-preview", messages=messages)
         if response.choices:
-            response_str = response.choices[0].message.content
-
-            # Affichage de la réponse pour le débogage
-            print(Fore.YELLOW + "Réponse brute de WriterGPT:" + Fore.CYAN, response_str)
-
-            return response_str
+            return response.choices[0].message.content
         else:
             print(Fore.RED + "Aucune réponse valide reçue de WriterGPT.")
             return None
@@ -75,71 +70,45 @@ def analyser_contenu_avec_writergpt(prompt_complet, prompt_writergpt):
         print(Fore.RED + f"Erreur lors de l'analyse IA avec WriterGPT : {e}")
         return None
 
-
-# ID de l'utilisateur pour le test
-user_id = 1
-
-# Données brutes pour le test
-data_brute = {
-  "title": "Absenteïsme féminin : entre réalité biologique et pressions sociétales",
-  "base_content": "Cet article mettra en lumière les facteurs impactant le taux plus élevé d'absentéisme chez les femmes, en croisant données sociologiques et responsabilités familiales. Un focus sur les politiques d'entreprise inclusives sera proposé pour atténuer cette disparité.",
-  "tone_of_voice": "professionnal",
-  "content_goal": "Blog Post",
-  "language": "Français",
-  "user_comment" :""
-}
-
-# Exécution du script
-titles_and_summaries = get_user_trends_data(user_id)
-print("Titres et Résumés récupérés:", titles_and_summaries)
-
-prompt_complet = create_writergpt_prompt(data_brute, titles_and_summaries)
-print("Prompt complet pour WriterGPT:", prompt_complet)
-
-prompt_writergpt = lire_prompt_writergpt()
-response_data = analyser_contenu_avec_writergpt(prompt_complet, prompt_writergpt)
-
 def envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url):
     try:
         with open(titre_filename, 'r', encoding='utf-8') as file:
             titre_content = file.read()
-
         with open(contenu_filename, 'r', encoding='utf-8') as file:
             contenu_content = file.read()
-
-        data = {
-            "titre": titre_content,
-            "contenu": contenu_content
-        }
+        data = {"titre": titre_content, "contenu": contenu_content}
         headers = {'Content-Type': 'application/json'}
-
         response = requests.post(webhook_url, headers=headers, json=data)
         return response.status_code, response.text
     except Exception as e:
         print(Fore.RED + f"Erreur lors de l'envoi du contenu à Bubble: {e}")
         return None, str(e)
 
-if response_data:
-    # Séparation du titre et du contenu
-    if "SEPARATION" in response_data:
-        titre_genere, contenu_genere = response_data.split("SEPARATION", 1)
-        titre_genere = titre_genere.strip()
-        contenu_genere = contenu_genere.strip()
+def main(data):
+    user_id = data.get("user_id", 1) 
+    titles_and_summaries = get_user_trends_data(user_id)
+    prompt_complet = create_writergpt_prompt(data, titles_and_summaries)
+    response_data = analyser_contenu_avec_writergpt(prompt_complet, lire_prompt_writergpt())
+
+    if response_data:
+        titre_genere, contenu_genere = (response_data.split("SEPARATION", 1) if "SEPARATION" in response_data else ("", ""))
+        titre_filename = "titre_genere.txt"
+        contenu_filename = "contenu_genere.txt"
+        with open(titre_filename, 'w', encoding='utf-8') as file:
+            file.write(titre_genere)
+        with open(contenu_filename, 'w', encoding='utf-8') as file:
+            file.write(contenu_genere)
+        webhook_url = "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/content_generation_content"
+        status, text = envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url)
+        print(f"Envoi des données - Status: {status}, Response: {text}")
     else:
-        print(Fore.RED + "Le format de la réponse de WriterGPT n'est pas conforme.")
-        titre_genere = ""
-        contenu_genere = ""
+        print(Fore.RED + "Erreur lors de la génération du contenu.")
 
-    # Création et enregistrement du fichier texte pour le titre
-    titre_filename = "titre_genere.txt"
-    with open(titre_filename, 'w', encoding='utf-8') as file:
-        file.write(titre_genere)
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        data = json.loads(sys.argv[1])
+        print("Données reçues:", data)  # Ajoutez cette ligne pour le débogage
 
-    # Création et enregistrement du fichier texte pour le contenu
-    contenu_filename = "contenu_genere.txt"
-    with open(contenu_filename, 'w', encoding='utf-8') as file:
-        file.write(contenu_genere)
-
-    webhook_url = "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/content_generation_content"
-    status, text = envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url)
-    print(f"Envoi des données - Status: {status}, Response: {text}")
+        main(data)
+    else:
+        print("Aucune donnée fournie.")

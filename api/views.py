@@ -8,6 +8,8 @@ from .serializers import UserSerializer
 from .serializers import UserSourceSerializer
 from database.models import Article
 from .serializers import ArticleSerializer
+from .serializers import TrendSerializer
+import subprocess
 from subprocess import call
 import json
 
@@ -69,5 +71,18 @@ def create_article(request):
         # ...
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['POST'])
+def suggest_for_trends(request):
+    serializer = TrendSerializer(data=request.data.get('trends'))
+
+    if serializer.is_valid():
+        # Exécuter le script suggest_trends.py avec les données validées
+        call(["python", "/Users/romain-pro/Desktop/factoryapp/suggest_trends.py", json.dumps(serializer.validated_data)])
+
+        return Response({"message": "Suggestion en cours de traitement"}, status=status.HTTP_200_OK)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

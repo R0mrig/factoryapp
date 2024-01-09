@@ -214,7 +214,7 @@ for company_name in company_names:
         print(f"Erreur lors de la lecture du fichier pour {company_name}: {e}")
 
 
-
+"""
 ### TRAITEMENT REFERENCES ###
         
         # Fonction pour lire le prompt de referenceGPT
@@ -288,7 +288,7 @@ for company_name in company_names:
         print(f"Articles de référence pour {company_name}:")
         imprimer_articles(globals()[json_response_var])
 
-
+"""
 
 ### CLEAN AND GROUP DATA ###
 

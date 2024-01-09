@@ -10,7 +10,7 @@ json_response_sdworx = '''{
         "date": "20/11/2023"
     },
     "article_3": {
-        "titre": "4 raisons de repenser votre stratégie des talents",
+        "titre": "Stratégie des talents : pourquoi maintenant ?",
         "lien": "https://www.sdworx.be/fr-be/actua-tendances/talent/4-raisons-strategie-des-talents",
         "date": "16/11/2023"
     }

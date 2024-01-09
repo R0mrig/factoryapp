@@ -1,17 +1,17 @@
 json_response_securex = '''{
     "article_1": {
+        "titre": "Hoeveel kost een werknemer jou?",
+        "lien": "https://www.securex.be/nl/blog/werkgevers/hoeveel-kost-een-werknemer-u",
+        "date": "8 jan 2024"
+    },
+    "article_2": {
         "titre": "Waarom zijn vrouwen vaker ziek dan mannen?",
         "lien": "https://www.securex.be/nl/blog/werkgevers/waarom-zijn-vrouwen-vaker-ziek-dan-mannen",
         "date": "29 dec 2023"
     },
-    "article_2": {
-        "titre": "Agressie tegen winkelpersoneel? Pak het aan voor het te laat is",
-        "lien": "https://www.securex.be/nl/blog/werkgevers/agressie_winkelpersoneel",
-        "date": "1 aug 2023"
-    },
     "article_3": {
-        "titre": "Een onwettelijke vorm van elektronische belastingcontrole?",
-        "lien": "https://www.securex.be/nl/blog/accountants/elektronische-belastingcontrole",
-        "date": "18 apr 2023"
+        "titre": "Waarom zoveel medewerkers uitstromen?",
+        "lien": "https://www.securex.be/nl/blog/werkgevers/waarom-zoveel-medewerkers-uitstromen",
+        "date": "31 okt 2023"
     }
 }'''

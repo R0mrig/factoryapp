@@ -36,3 +36,8 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ['title', 'base_content', 'content', 'tone_of_voice', 'content_goal', 'language', 'user_comment']
+
+
+class TrendSerializer(serializers.Serializer):
+    titre = serializers.CharField(max_length=300)
+    base_content = serializers.CharField(max_length=1500)
