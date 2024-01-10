@@ -79,12 +79,12 @@ def create_article(request):
 
 @api_view(['POST'])
 def suggest_for_trends(request):
-    serializer = TrendSerializer(data=request.data.get('trends'))
+    serializer = TrendSerializer(data=request.data)
 
     if serializer.is_valid():
         # Exécuter le script suggest_trends.py avec les données validées
-        call(["python", "/Users/romain-pro/Desktop/factoryapp/suggest_trends.py", json.dumps(serializer.validated_data)])
+        call(["python", "\\Users\\Administrator\\Documents\\GitHub\\factoryapp\\suggest_trends.py", json.dumps(serializer.validated_data)])
 
-        return Response({"message": "Suggestion en cours de traitement"}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -14,7 +14,7 @@ django.setup()
 from database.models import User, UserTrends
 
 # Configuration des chemins
-BASE_PATH = '/Users/romain-pro/Desktop/factoryapp'
+BASE_PATH = '\\Users\\Administrator\\Documents\\GitHub\\factoryapp'
 PROMPT_PATH = os.path.join(BASE_PATH, 'Prompts')
 
 # Initialisation de colorama
@@ -50,8 +50,8 @@ def create_writergpt_prompt(data, titles_and_summaries):
     prompt = (
        f"Article à créer : {data['title']} et {data['base_content']}\n"
         f"Instructions : ton de voix : {data['tone_of_voice']}, "
-        f"Type de contenu : {data['content_goal']}, écris en : {data['language']}.\n"
-        f"objectif du contenu : {data['goals']}, écris un texte : {data['content_size']}.\n"
+        f"Type de contenu à écrire: {data['content_goal']}, le contenu doit être de longueur : {data['content_size']}.  écris en : {data['language']}.\n"
+        f"objectif du contenu : {data['goals']}, \n"
         f"Instruction supplémentaire de l'utilisateur : {data.get('user_comment', '')}\n"
         f"Pour t'aider à la rédaction, voici du contenu supplémentaire dont tu peux t'inspirer : {additional_content}."
     )
