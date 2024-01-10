@@ -61,11 +61,13 @@ def create_article(request):
             "tone_of_voice": serializer.validated_data['tone_of_voice'],
             "content_goal": serializer.validated_data['content_goal'],
             "language": serializer.validated_data['language'],
-            "user_comment": serializer.validated_data.get('user_comment', '')
+            "user_comment": serializer.validated_data.get('user_comment', ''),
+            "content_size": serializer.validated_data['content_size'],
+            "goals": serializer.validated_data['goals']
         })
 
         # Exécuter le script test.py avec les données validées
-        call(["python", "/Users/romain-pro/Desktop/factoryapp/test.py", data])
+        call(["python", "/Users/romain-pro/Desktop/factoryapp/generate_content.py", data])
 
         # Logique supplémentaire pour confirmer le succès de l'opération
         # ...

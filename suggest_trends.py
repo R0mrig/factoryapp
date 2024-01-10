@@ -42,7 +42,7 @@ def get_user_trends_data(user_id):
         return []
 
 def lire_prompt_SuggestionGPT():
-    prompt_SuggestionGPT_path = os.path.join(PROMPT_PATH, 'SuggestionGPT.txt')
+    prompt_SuggestionGPT_path = os.path.join(PROMPT_PATH, 'trends-suggestionGPT.txt')
     with open(prompt_SuggestionGPT_path, 'r', encoding='utf-8') as file:
         return file.read()
 
@@ -50,7 +50,7 @@ def create_SuggestionGPT_prompt(data, titles_and_summaries):
     additional_content = " ".join(titles_and_summaries)
     prompt = (
         f"Ecris des suggestions d'article en te basant sur la tendance suivante : {data['titre']} et {data['base_content']}\n"
-        f"Pour t'aider à la rédaction, voici du contenu supplémentaire dont tu peux t'inspirer si il est pertinent : {additional_content}."
+        f"Voici une liste d'article et de leur résumer sur divers tendance, parcours la et inspire toi uniquement des tendance similaire à {data['titre']} et {data['base_content']} pour tes suggestions: {additional_content}."
     )
     return prompt
 
