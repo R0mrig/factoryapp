@@ -11,7 +11,7 @@ from database.models import Article
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'company']  # Tu peux choisir les champs que tu veux inclure.
+        fields = ['id', 'email', 'name']  # Tu peux choisir les champs que tu veux inclure.
 
 ## serializer pour l'API user_source creation ##
 
@@ -35,7 +35,7 @@ class UserSourceSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ['title', 'base_content', 'content', 'tone_of_voice', 'content_goal', 'language', 'user_comment', 'content_size', 'goals']
+        fields = ['title', 'base_content', 'content', 'tone_of_voice', 'content_goal', 'language', 'user_comment', 'content_size', 'goals', 'email']
 
 
 class TrendSerializer(serializers.Serializer):

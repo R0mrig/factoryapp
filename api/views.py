@@ -63,7 +63,8 @@ def create_article(request):
             "language": serializer.validated_data['language'],
             "user_comment": serializer.validated_data.get('user_comment', ''),
             "content_size": serializer.validated_data['content_size'],
-            "goals": serializer.validated_data['goals']
+            "goals": serializer.validated_data['goals'],
+            "email": serializer.validated_data.get('email', '') 
         })
 
         # Exécuter le script test.py avec les données validées
@@ -83,7 +84,7 @@ def suggest_for_trends(request):
 
     if serializer.is_valid():
         # Exécuter le script suggest_trends.py avec les données validées
-        call(["python", "\\Users\\Administrator\\Documents\\GitHub\\factoryapp\\suggest_trends.py", json.dumps(serializer.validated_data)])
+        call(["python", "/Users/romain-pro/Desktop/factoryapp/suggest_trends.py", json.dumps(serializer.validated_data)])
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:

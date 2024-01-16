@@ -1,32 +1,77 @@
 {
     "article_1": {
-        "titre": "Hoeveel kost een werknemer jou?",
-        "lien": "https://www.securex.be/nl/blog/werkgevers/hoeveel-kost-een-werknemer-u",
-        "date": "8 jan 2024"
-    },
-    "article_2": {
         "titre": "Waarom zijn vrouwen vaker ziek dan mannen?",
         "lien": "https://www.securex.be/nl/blog/werkgevers/waarom-zijn-vrouwen-vaker-ziek-dan-mannen",
         "date": "29 dec 2023"
     },
+    "article_2": {
+        "titre": "Hoeveel kost een werknemer jou?",
+        "lien": "https://www.securex.be/nl/blog/werkgevers/hoeveel-kost-een-werknemer-u",
+        "date": "8 jan 2024"
+    },
     "article_3": {
-        "titre": "Waarom zoveel medewerkers uitstromen?",
-        "lien": "https://www.securex.be/nl/blog/werkgevers/waarom-zoveel-medewerkers-uitstromen",
-        "date": "31 okt 2023"
+        "titre": "Annual results FY23",
+        "lien": "https://www2.deloitte.com/be/en/pages/about-deloitte/press-releases/annual-results-fy23.html",
+        "date": "Not available"
     },
     "article_4": {
+        "titre": "Digital Consumer Trends 2023",
+        "lien": "https://www2.deloitte.com/be/en/pages/about-deloitte/press-releases/digital-consumer-trends-devices-2023.html",
+        "date": "Not available"
+    },
+    "article_5": {
+        "titre": "2023 Technology Fast 50",
+        "lien": "https://www2.deloitte.com/be/en/pages/about-deloitte/press-releases/fast50-2023-winners.html",
+        "date": "Not available"
+    },
+    "article_6": {
+        "titre": "Le budget mobilité en 6 questions",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/payroll/budget-mobilite-6-questions",
+        "date": "20/12/2023"
+    },
+    "article_7": {
         "titre": "Limitation des contrats journaliers successifs dans le travail temporaire : évitez des contributions ONSS supplémentaires.",
         "lien": "https://www.sdworx.be/fr-be/actua-tendances/talent/limitation-des-contrats-journaliers-successifs-dans-le-travail-temporaire",
         "date": "24/11/2023"
     },
-    "article_5": {
+    "article_8": {
         "titre": "Protection obligatoire des lanceurs d’alerte – prenez les devants",
         "lien": "https://www.sdworx.be/fr-be/actua-tendances/administration-du-personnel/protection-obligatoire-des-lanceurs-dalerte-prenez-les",
         "date": "20/11/2023"
     },
-    "article_6": {
-        "titre": "Stratégie des talents : pourquoi maintenant ?",
+    "article_9": {
+        "titre": "4 raisons de repenser votre stratégie des talents",
         "lien": "https://www.sdworx.be/fr-be/actua-tendances/talent/4-raisons-strategie-des-talents",
         "date": "16/11/2023"
+    },
+    "article_10": {
+        "titre": "Ressources humaines en 2024 : à quoi nous attendre ?",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/administration-du-personnel/tour-dhorizon-2024",
+        "date": "15/11/2023"
+    },
+    "article_11": {
+        "titre": "Qu’est-ce qui a changé en 2023 ?",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/administration-du-personnel/retrospective-mesures-socio-juridiques-2023",
+        "date": "15/11/2023"
+    },
+    "article_12": {
+        "titre": "Pécule et jours de vacances : ce qui change en 2024 ",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/bien-etre-sante/vacances-ce-qui-change-en-2024",
+        "date": "10/11/2023"
+    },
+    "article_13": {
+        "titre": "Accord budgétaire 2024 : 5 mesures expliquées ",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/payroll/accord-sur-le-budget-federal-2024",
+        "date": "19/10/2023"
+    },
+    "article_14": {
+        "titre": "Migration de SAP On-Premise vers SAP SuccessFactors : la puissance de la transformation cloud des RH",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/logiciel-rh-numerisation/migration-de-sap-premise-vers-sap-successfactors",
+        "date": "17/10/2023"
+    },
+    "article_15": {
+        "titre": "6 questions sur le budget mobilité",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/payroll/budget-mobilite-6-questions",
+        "date": "20/12/2023"
     }
 }

@@ -47,4 +47,6 @@ class Article(models.Model):
     language = models.CharField(max_length=50)
     goals = models.CharField(max_length=200, null=True, default="")
     content_size = models.CharField(max_length=200, null=True, default="")
+    email = models.EmailField(max_length=254, default='')
+
 

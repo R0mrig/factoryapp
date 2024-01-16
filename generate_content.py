@@ -14,7 +14,7 @@ django.setup()
 from database.models import User, UserTrends
 
 # Configuration des chemins
-BASE_PATH = '\\Users\\Administrator\\Documents\\GitHub\\factoryapp'
+BASE_PATH = '/Users/romain-pro/Desktop/factoryapp/'
 PROMPT_PATH = os.path.join(BASE_PATH, 'Prompts')
 
 # Initialisation de colorama
@@ -71,13 +71,13 @@ def analyser_contenu_avec_writergpt(prompt_complet, prompt_writergpt):
         print(Fore.RED + f"Erreur lors de l'analyse IA avec WriterGPT : {e}")
         return None
 
-def envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url):
+def envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url, email):
     try:
         with open(titre_filename, 'r', encoding='utf-8') as file:
             titre_content = file.read()
         with open(contenu_filename, 'r', encoding='utf-8') as file:
             contenu_content = file.read()
-        data = {"titre": titre_content, "contenu": contenu_content}
+        data = {"titre": titre_content, "contenu": contenu_content, "email": email}
         headers = {'Content-Type': 'application/json'}
         response = requests.post(webhook_url, headers=headers, json=data)
         return response.status_code, response.text
@@ -100,7 +100,8 @@ def main(data):
         with open(contenu_filename, 'w', encoding='utf-8') as file:
             file.write(contenu_genere)
         webhook_url = "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/content_generation_content"
-        status, text = envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url)
+        email = data.get('email', '')  # Récupération de l'email depuis les données
+        status, text = envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url, email)
         print(f"Envoi des données - Status: {status}, Response: {text}")
     else:
         print(Fore.RED + "Erreur lors de la génération du contenu.")

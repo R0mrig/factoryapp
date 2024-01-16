@@ -1,0 +1,17 @@
+json_response_attentia = '''{
+    "article_1": {
+        "titre": "Annual results FY23",
+        "lien": "https://www2.deloitte.com/be/en/pages/about-deloitte/press-releases/annual-results-fy23.html",
+        "date": "Not available"
+    },
+    "article_2": {
+        "titre": "Digital Consumer Trends 2023",
+        "lien": "https://www2.deloitte.com/be/en/pages/about-deloitte/press-releases/digital-consumer-trends-devices-2023.html",
+        "date": "Not available"
+    },
+    "article_3": {
+        "titre": "2023 Technology Fast 50",
+        "lien": "https://www2.deloitte.com/be/en/pages/about-deloitte/press-releases/fast50-2023-winners.html",
+        "date": "Not available"
+    }
+}'''
