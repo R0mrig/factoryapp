@@ -86,10 +86,12 @@ def envoyer_tous_les_json(filenames, webhook_url):
         time.sleep(5)  # Pause de 5 secondes
 
 
-def envoyer_a_bubble(filename, webhook_url):
+def envoyer_a_bubble(filename, webhook_url, email):
     headers = {'Content-Type': 'application/json'}
     with open(filename, 'r', encoding='utf-8') as file:
         data = json.load(file)
+    
+    data['email'] = email  # Ajout de l'email aux données
 
     try:
         response = requests.post(webhook_url, headers=headers, json=data)
@@ -107,14 +109,16 @@ def supprimer_fichiers_json():
 # Appel de la fonction pour supprimer les fichiers JSON
 def main(data):
     user_id = data.get("user_id", 1)
+    email = data.get('email', '')  # Récupération de l'email depuis les données
     titles_and_summaries = get_user_trends_data(user_id)
     prompt_complet = create_SuggestionGPT_prompt(data, titles_and_summaries)
     response_data = analyser_suggestions_avec_SuggestionGPT(prompt_complet, lire_prompt_SuggestionGPT())
-    supprimer_fichiers_json()
-    
+
     if response_data:
         filenames = creer_et_envoyer_json_suggestions(response_data)
-        envoyer_tous_les_json(filenames, "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/suggestion_trends")
+        for filename in filenames:
+            envoyer_a_bubble(filename, "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/suggestion_trends", email)
+            time.sleep(5)  # Pause de 5 secondes entre les envois
         supprimer_fichiers_json()  
     else:
         print(Fore.RED + "Erreur lors de la génération des suggestions.")

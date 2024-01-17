@@ -83,8 +83,12 @@ def suggest_for_trends(request):
     serializer = TrendSerializer(data=request.data)
 
     if serializer.is_valid():
+        # Ajoutez l'email aux données validées
+        validated_data = serializer.validated_data
+        validated_data['email'] = serializer.validated_data.get('email', '')
+
         # Exécuter le script suggest_trends.py avec les données validées
-        call(["python", "/Users/romain-pro/Desktop/factoryapp/suggest_trends.py", json.dumps(serializer.validated_data)])
+        call(["python", "/Users/romain-pro/Desktop/factoryapp/suggest_trends.py", json.dumps(validated_data)])
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
