@@ -22,13 +22,18 @@ def user_list_create(request):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
-    
+
     elif request.method == 'POST':
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            # Convertir les données validées en JSON
+            data_as_json = json.dumps(serializer.validated_data)
+            # Exécuter le script generate_content.py avec les données validées
+            subprocess.call(["python", "/Users/romain-pro/Desktop/factoryapp/User_setup.py", data_as_json])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['GET', 'POST'])

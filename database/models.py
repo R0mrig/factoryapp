@@ -5,11 +5,17 @@ from django.conf import settings
 
 class User(models.Model):
     email = models.EmailField(unique=True)
-    name = models.CharField(max_length=100)
-    company = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100, null=True)
+    last_name = models.CharField(max_length=100, null=True)
+    company_name = models.CharField(max_length=100, null=True)
+    title = models.CharField(max_length=100, null=True)
+    company_url = models.CharField(max_length=100, null=True, blank=True)
+    linkedin_url = models.URLField(null=True, blank=True)
+    youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} ({self.email})"
+        return f"{self.first_name} {self.last_name} ({self.email})"
+
 
 
 class UserSource(models.Model):
