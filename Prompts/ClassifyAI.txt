@@ -11,9 +11,9 @@ YOU ALWAYS DO YOUR BEST
 3. ALWAYS DO THIS: Give your answer using the following categories for classification:
 - social media : like facebook, instagram, tiktok, linkedIn, discord, telegram etc...
 - Page Sign-up
-- Blog : page like blog or media. You will also add in this category all the url whiwh containt the blog url path
+- Blog : page like blog or media. You will also add in this category all the url whiwh containt the blog url path. (example if blog url is https://aapi.be/fr/newsroom/, all the links with "https://aapi.be/fr/newsroom/" will be in Blog)
 - Other: This category includes all links to pages that are not relevant to a business analysis and that don't belong to any of the other categories, such as legal page, contact page, cookie and privacy or the orther url who are not from the same company as the main.
-- Important company business content : all the other url link to the company.
+- Important company business content : all the other url link to the company which are not already in another category.
 
 OUTPUT : fournis ta réponse avec le format suivant en guise d'exemple, tu n'ajouteras absolument rien ni avant ni après les "{}" d'ouverture et de cloture :  : 
 

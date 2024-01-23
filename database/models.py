@@ -50,9 +50,11 @@ class Article(models.Model):
     user_comment = models.TextField(blank=True, null=True)  # Ajouter le champ user_comment
     tone_of_voice = models.CharField(max_length=50)
     content_goal = models.CharField(max_length=200)
-    language = models.CharField(max_length=50)
+    product = models.TextField(blank=True, null=True)
+    language = models.CharField(max_length=50, null=True, default="")
     goals = models.CharField(max_length=200, null=True, default="")
     content_size = models.CharField(max_length=200, null=True, default="")
     email = models.EmailField(max_length=254, default='')
+    Company_info = models.TextField(blank=True, null=True)
 
 

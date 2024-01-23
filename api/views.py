@@ -65,11 +65,13 @@ def create_article(request):
             "base_content": serializer.validated_data.get('base_content', ''),
             "tone_of_voice": serializer.validated_data['tone_of_voice'],
             "content_goal": serializer.validated_data['content_goal'],
+            "product": serializer.validated_data['product'],
             "language": serializer.validated_data['language'],
             "user_comment": serializer.validated_data.get('user_comment', ''),
             "content_size": serializer.validated_data['content_size'],
             "goals": serializer.validated_data['goals'],
-            "email": serializer.validated_data.get('email', '') 
+            "email": serializer.validated_data.get('email', ''),
+            "Company_info": serializer.validated_data.get('Company_info', '') 
         })
 
         # Exécuter le script test.py avec les données validées

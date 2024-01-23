@@ -48,10 +48,11 @@ def lire_prompt_writergpt():
 def create_writergpt_prompt(data, titles_and_summaries):
     additional_content = " ".join(titles_and_summaries)
     prompt = (
-       f"Article à créer : {data['title']} et {data['base_content']}\n"
+       f"Tu rédiges du contenus pour la société suivante : {data['Company_info']}\n"
+        f"Article à créer : {data['title']} et {data['base_content']}\n"
         f"Instructions : ton de voix : {data['tone_of_voice']}, "
-        f"Type de contenu à écrire: {data['content_goal']}, le contenu doit être de longueur : {data['content_size']}.  écris en : {data['language']}.\n"
-        f"objectif du contenu : {data['goals']}, \n"
+        f"Type de contenu à écrire: {data['content_goal']}, le contenu doit être de longueur : {data['content_size']}.  .\n"
+        f"objectif du contenu : {data['goals']}. Si c'est pertinent tu peux parler de leur produit : {data['product']}\n"
         f"Instruction supplémentaire de l'utilisateur : {data.get('user_comment', '')}\n"
         f"Pour t'aider à la rédaction, voici du contenu supplémentaire dont tu peux t'inspirer : {additional_content}."
     )

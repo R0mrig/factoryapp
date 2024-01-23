@@ -35,7 +35,7 @@ class UserSourceSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ['title', 'base_content', 'content', 'tone_of_voice', 'content_goal', 'language', 'user_comment', 'content_size', 'goals', 'email']
+        fields = ['title', 'base_content', 'content', 'tone_of_voice', 'content_goal', 'user_comment', 'content_size', 'goals', 'email', 'product', 'Company_info', 'language']
 
 
 class TrendSerializer(serializers.Serializer):
