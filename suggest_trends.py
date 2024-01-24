@@ -49,7 +49,8 @@ def lire_prompt_SuggestionGPT():
 def create_SuggestionGPT_prompt(data, titles_and_summaries):
     additional_content = " ".join(titles_and_summaries)
     prompt = (
-        f"Ecris des suggestions d'article en te basant sur la tendance suivante : {data['titre']} et {data['base_content']}\n"
+        f"Aujour'dhui tu travailles pour la société suivante {data['Company_info']}\n"
+        f"Ecris des suggestions d'articles en te basant sur la tendance suivante : {data['titre']} et {data['base_content']}\n"
         f"Voici une liste d'article et de leur résumer sur divers tendance, parcours la et inspire toi uniquement des tendance similaire à {data['titre']} et {data['base_content']} pour tes suggestions: {additional_content}."
     )
     return prompt

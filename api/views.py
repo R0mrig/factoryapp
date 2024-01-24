@@ -66,6 +66,7 @@ def create_article(request):
             "tone_of_voice": serializer.validated_data['tone_of_voice'],
             "content_goal": serializer.validated_data['content_goal'],
             "product": serializer.validated_data['product'],
+            "description": serializer.validated_data.get('description', ''),
             "language": serializer.validated_data['language'],
             "user_comment": serializer.validated_data.get('user_comment', ''),
             "content_size": serializer.validated_data['content_size'],

@@ -51,6 +51,7 @@ class Article(models.Model):
     tone_of_voice = models.CharField(max_length=50)
     content_goal = models.CharField(max_length=200)
     product = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     language = models.CharField(max_length=50, null=True, default="")
     goals = models.CharField(max_length=200, null=True, default="")
     content_size = models.CharField(max_length=200, null=True, default="")

@@ -35,11 +35,12 @@ class UserSourceSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ['title', 'base_content', 'content', 'tone_of_voice', 'content_goal', 'user_comment', 'content_size', 'goals', 'email', 'product', 'Company_info', 'language']
+        fields = ['title', 'base_content', 'content', 'tone_of_voice', 'content_goal', 'user_comment', 'content_size', 'goals', 'email', 'product', 'description', 'Company_info', 'language']
 
 
 class TrendSerializer(serializers.Serializer):
     titre = serializers.CharField(max_length=300)
     base_content = serializers.CharField(max_length=1500)
     email = serializers.EmailField()
+    Company_info = serializers.CharField(max_length=1500)
 
