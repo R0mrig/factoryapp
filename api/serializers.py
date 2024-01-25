@@ -44,3 +44,11 @@ class TrendSerializer(serializers.Serializer):
     email = serializers.EmailField()
     Company_info = serializers.CharField(max_length=1500)
 
+
+class TailorTrendSerializer(serializers.Serializer):
+    titre = serializers.CharField(max_length=500)
+    base_content = serializers.CharField(max_length=1500)
+    email = serializers.EmailField()
+    product = serializers.CharField(max_length=1500)
+    Company_info = serializers.CharField(max_length=1500)
+    description = serializers.CharField(max_length=3000)

@@ -1,8 +1,8 @@
 from django.urls import path
 from . import views
 from .views import create_article
-from .views import suggest_for_trends
-
+from .views import suggest_for_trends 
+from .views import suggest_for_tailor_content 
 
 
 
@@ -12,4 +12,5 @@ urlpatterns = [
     path('user-sources/', views.user_sources, name='user-sources'),
     path('create_article/', create_article),
     path('suggest_for_trends/', suggest_for_trends),
+    path('suggest_for_tailor_content/', suggest_for_tailor_content),
 ]

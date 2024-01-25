@@ -8,7 +8,8 @@ from .serializers import UserSerializer
 from .serializers import UserSourceSerializer
 from database.models import Article
 from .serializers import ArticleSerializer
-from .serializers import TrendSerializer
+from .serializers import TrendSerializer 
+from .serializers import TailorTrendSerializer
 import subprocess
 from subprocess import call
 import json
@@ -97,6 +98,23 @@ def suggest_for_trends(request):
 
         # Exécuter le script suggest_trends.py avec les données validées
         call(["python", "/Users/romain-pro/Desktop/factoryapp/suggest_trends.py", json.dumps(validated_data)])
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def suggest_for_tailor_content(request):
+    serializer =  TailorTrendSerializer(data=request.data)
+
+    if serializer.is_valid():
+        # Ajoutez l'email aux données validées
+        validated_data = serializer.validated_data
+        validated_data['email'] = serializer.validated_data.get('email', '')
+
+        # Exécuter le script suggest_trends.py avec les données validées
+        call(["python", "/Users/romain-pro/Desktop/factoryapp/Tailor_trends.py", json.dumps(validated_data)])
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
