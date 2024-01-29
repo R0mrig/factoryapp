@@ -10,7 +10,10 @@ from database.models import Article
 from .serializers import ArticleSerializer
 from .serializers import TrendSerializer 
 from .serializers import TailorTrendSerializer
+from django.core.exceptions import ObjectDoesNotExist
 import subprocess
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from subprocess import call
 import json
 
@@ -18,6 +21,7 @@ import json
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def user_list_create(request):
     if request.method == 'GET':
         users = User.objects.all()
@@ -38,6 +42,7 @@ def user_list_create(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def user_sources(request):
     if request.method == 'GET':
         email = request.query_params.get('email')
@@ -57,6 +62,7 @@ def user_sources(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def create_article(request):
     serializer = ArticleSerializer(data=request.data)
     if serializer.is_valid():
@@ -87,7 +93,9 @@ def create_article(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
+
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def suggest_for_trends(request):
     serializer = TrendSerializer(data=request.data)
 
@@ -104,7 +112,9 @@ def suggest_for_trends(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def suggest_for_tailor_content(request):
     serializer =  TailorTrendSerializer(data=request.data)
 
