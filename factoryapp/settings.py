@@ -82,7 +82,7 @@ WSGI_APPLICATION = "factoryapp.wsgi.application"
 DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'BaseTest',  # Le nom de votre base de données
+        'NAME': 'BD2',  # Le nom de votre base de données
         'USER': 'Admin',  # Le nom d'utilisateur pour accéder à votre base de données, à ajuster si différent
         'PASSWORD': 'YiPOklMI786tRFdE',  # Le mot de passe de l'utilisateur de la base de données
         'HOST': 'fl292586-001.eu.clouddb.ovh.net',  # L'adresse de l'hôte de votre base de données
@@ -144,3 +144,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = 'database.User'

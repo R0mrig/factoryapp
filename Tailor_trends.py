@@ -119,7 +119,7 @@ def main(data):
     if response_data:
         filenames = creer_et_envoyer_json_suggestions(response_data)
         for filename in filenames:
-            envoyer_a_bubble(filename, "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/tailor_made_suggestion/initialize", email)
+            envoyer_a_bubble(filename, "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/tailor_made_suggestion", email)
             time.sleep(5)  # Pause de 5 secondes entre les envois
         supprimer_fichiers_json()  
     else:

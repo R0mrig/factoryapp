@@ -1,7 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.contrib.auth.models import User
 from database.models import User
 from database.models import UserSource
 from .serializers import UserSerializer
@@ -10,18 +9,19 @@ from database.models import Article
 from .serializers import ArticleSerializer
 from .serializers import TrendSerializer 
 from .serializers import TailorTrendSerializer
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 import subprocess
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from subprocess import call
 import json
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
-
+User = get_user_model()
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
 def user_list_create(request):
     if request.method == 'GET':
         users = User.objects.all()
@@ -31,18 +31,19 @@ def user_list_create(request):
     elif request.method == 'POST':
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
             # Convertir les données validées en JSON
             data_as_json = json.dumps(serializer.validated_data)
             # Exécuter le script generate_content.py avec les données validées
             subprocess.call(["python", "/Users/romain-pro/Desktop/factoryapp/User_setup.py", data_as_json])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated]) 
 def user_sources(request):
     if request.method == 'GET':
         email = request.query_params.get('email')
@@ -129,3 +130,19 @@ def suggest_for_tailor_content(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import permissions
+from .serializers import CustomTokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenRefreshView
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    # Si vous avez besoin de personnaliser, ajoutez votre logique ici
+    pass
