@@ -7,6 +7,8 @@ from django.contrib.auth import authenticate
 import subprocess
 import json
 import requests
+from subprocess import call
+
 
 from .serializers import (
     UserSerializer, 
@@ -22,6 +24,32 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
+@api_view(['POST'])
+def sign_up(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+
+        # Génération du token
+        refresh = RefreshToken.for_user(user)
+
+        # Préparation des données pour le webhook
+        webhook_data = {
+            "email": user.email,
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh)
+        }
+
+        # URL du webhook Bubble
+        webhook_url = 'https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/get_token'
+
+        # Envoi des données au webhook
+        requests.post(webhook_url, json=webhook_data)
+
+        return Response({'email': user.email, 'refresh': str(refresh), 'access': str(refresh.access_token)}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['GET', 'POST'])
 def user_list_create(request):
     if request.method == 'GET':
@@ -30,17 +58,30 @@ def user_list_create(request):
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
+        # Vérifie si l'utilisateur existe déjà (mise à jour) ou non (création)
+        email = request.data.get('email')
+        try:
+            user = User.objects.get(email=email)
+            update = True
+        except User.DoesNotExist:
+            user = None
+            update = False
+
+        serializer = UserSerializer(user, data=request.data, partial=update)
         if serializer.is_valid():
             user = serializer.save()
+
             # Convertir les données validées en JSON
             data_as_json = json.dumps(serializer.validated_data)
-            # Exécuter le script generate_content.py avec les données validées
-            subprocess.call(["python", "/Users/romain-pro/Desktop/factoryapp/User_setup.py", data_as_json])
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            # Exécuter le script externe avec les données validées
+            script_path = "/Users/romain-pro/Desktop/factoryapp/User_setup.py"
+            subprocess.call(["python", script_path, data_as_json])
+
+            status_code = status.HTTP_200_OK if update else status.HTTP_201_CREATED
+            return Response(serializer.data, status=status_code)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 @api_view(['GET', 'POST'])

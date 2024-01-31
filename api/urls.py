@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from .views import (
+    sign_up,
     user_list_create, 
     user_sources, 
     create_article, 
@@ -20,4 +21,5 @@ urlpatterns = [
     path('suggest_for_tailor_content/', suggest_for_tailor_content),
     path('api/token/', TokenCreateView.as_view(), name='token_create'),  # Ajoutez ce chemin pour la génération de token
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('sign-up/', sign_up, name='sign-up'),
 ]
