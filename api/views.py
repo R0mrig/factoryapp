@@ -1,23 +1,24 @@
 from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from database.models import User
-from database.models import UserSource
-from .serializers import UserSerializer
-from .serializers import UserSourceSerializer
-from database.models import Article
-from .serializers import ArticleSerializer
-from .serializers import TrendSerializer 
-from .serializers import TailorTrendSerializer
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
-import subprocess
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from subprocess import call
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate
+import subprocess
 import json
-from rest_framework_simplejwt.tokens import RefreshToken
+import requests
 
+from .serializers import (
+    UserSerializer, 
+    UserSourceSerializer, 
+    ArticleSerializer, 
+    TrendSerializer, 
+    TailorTrendSerializer, 
+    CustomTokenObtainPairSerializer
+)
+from database.models import User, UserSource, Article
+from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
@@ -137,7 +138,31 @@ from rest_framework import permissions
 from .serializers import CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenRefreshView
 
+class TokenCreateView(APIView):
+    permission_classes = (permissions.AllowAny,)
 
+    def post(self, request, *args, **kwargs):
+        serializer = CustomTokenObtainPairSerializer(data=request.data)
+        if serializer.is_valid():
+            user = authenticate(email=request.data['email'], password=request.data['password'])
+            if user is not None:
+                refresh = RefreshToken.for_user(user)
+
+                webhook_data = {
+                    "email": user.email,
+                    "access_token": str(refresh.access_token),
+                    "refresh_token": str(refresh)
+                }
+
+                webhook_url = 'https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/get_token'
+                requests.post(webhook_url, json=webhook_data)
+
+                return Response(serializer.validated_data, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
 class CustomTokenObtainPairView(TokenObtainPairView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = CustomTokenObtainPairSerializer

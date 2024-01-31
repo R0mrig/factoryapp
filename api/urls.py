@@ -7,7 +7,8 @@ from .views import (
     suggest_for_trends, 
     suggest_for_tailor_content, 
     CustomTokenObtainPairView,
-    TokenRefreshView
+    TokenRefreshView,
+    TokenCreateView
 )
 
 urlpatterns = [
@@ -17,6 +18,6 @@ urlpatterns = [
     path('create_article/', create_article),
     path('suggest_for_trends/', suggest_for_trends),
     path('suggest_for_tailor_content/', suggest_for_tailor_content),
-    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', TokenCreateView.as_view(), name='token_create'),  # Ajoutez ce chemin pour la génération de token
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
