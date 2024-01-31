@@ -6,7 +6,8 @@ INSTRUCTION :
  - J'ai besoin que tu analyse le contenu de la société pour : 
 
     - Rédiger un résumer de l'activité professionnelle de la société en 10 lignes.
-    - Identifier et lister les différents produits ou services.
+    - Identifier et lister les différents produits ou services de la société; 
+    - Pour chaque produits ouservices, tu rédigeras une rapide présentation de 2-3 phrases.
     - Identifier et lister les points forts/force de la société
 
 OUTPUT :   
@@ -20,7 +21,10 @@ OUTPUT :
     "Produits/service": {
         "Produits_1": "Produits_1",
         "Produits_2": "Produits_2",
-        "Produits_3": "resuProduits_3me",
+        "Produits_3": "Produits_3",
+        "description_Produits_1": "description_Produits_1",
+        "description_Produits_2": "description_Produits_2",
+        "description_Produits_3": "description_Produits_3",
     },
     "points forts/force": {
         "force_1": "force_1",

@@ -51,6 +51,7 @@ def sign_up(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated]) 
 def user_list_create(request):
     if request.method == 'GET':
         users = User.objects.all()

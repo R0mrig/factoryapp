@@ -199,14 +199,22 @@ def send_resume(data, email):
     return send_to_webhook(resume_data, webhook_url)
 
 # Fonction pour préparer et envoyer les produits/services
-def send_produits(data, email):
-    for key, value in data["Produits/service"].items():
-        product_data = {
-            "produit_x": value,
-            "email": email
-        }
-        webhook_url = "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/set-up_produits/initialize"
-        send_to_webhook(product_data, webhook_url)
+def send_produits(resultat_json, user_email):
+    produits = resultat_json["Produits/service"]
+
+    for key, value in produits.items():
+        if key.startswith("Produits_"):
+            product_name = value
+            description_key = f"description_{key}"
+            product_description = produits.get(description_key, "Description non disponible")
+
+            produit_data = {
+                "produit_x": product_name,
+                "description_produit_x": product_description,
+                "email": user_email
+            }
+            webhook_url = "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/set-up_produits/initialize"
+            envoyer_a_bubble(produit_data, webhook_url)
 
 # Fonction pour préparer et envoyer les forces
 def send_forces(data, email):
@@ -291,13 +299,20 @@ def main(data_as_json):
     }
     envoyer_a_bubble(resume_data, "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/technical_analyse")
 
-    # Envoyer les produits
-    for key, value in resultat_json["Produits/service"].items():
-        produit_data = {
-            "produit_x": value,
-            "email": user_email
-        }
-        envoyer_a_bubble(produit_data, "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/set-up_produits")
+    # Envoyer les produits avec leur description
+    produits = resultat_json["Produits/service"]
+    for key, value in produits.items():
+        if key.startswith("Produits_"):
+            product_name = value
+            description_key = f"description_{key}"
+            product_description = produits.get(description_key, "Description non disponible")
+            produit_data = {
+                "produit_x": product_name,
+                "description_produit_x": product_description,
+                "email": user_email
+            }
+            webhook_url = "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/set-up_produits"
+            envoyer_a_bubble(produit_data, webhook_url)
 
     # Envoyer les forces
     for key, value in resultat_json["points forts/force"].items():
