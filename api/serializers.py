@@ -28,14 +28,14 @@ class UserSerializer(serializers.ModelSerializer):
 ## serializer pour l'API user_source creation ##
 
 class UserSourceSerializer(serializers.ModelSerializer):
-    user_email = serializers.EmailField(write_only=True)
+    email = serializers.EmailField(write_only=True)
 
     class Meta:
         model = UserSource
-        fields = ['title', 'base_content', 'content', 'user_comment', 'tone_of_voice', 'content_goal', 'language']
+        fields = ['email', 'competitors', 'linkedin', 'references', 'youtube']
 
     def create(self, validated_data):
-        user_email = validated_data.pop('user_email', None)
+        user_email = validated_data.pop('email', None)
         if user_email:
             user, created = User.objects.get_or_create(email=user_email)
             validated_data['user'] = user

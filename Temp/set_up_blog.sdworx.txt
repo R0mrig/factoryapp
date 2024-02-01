@@ -1,52 +1,22 @@
 json_response_sdworx = '''{
     "article_1": {
-        "titre": "Le budget mobilité en 6 questions",
-        "lien": "https://www.sdworx.be/fr-be/actua-tendances/payroll/budget-mobilite-6-questions",
-        "date": "20/12/2023"
+        "titre": "L’alternative des options sur actions et warrants fête ses 20 ans",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/remuneration-et-cout-salarial/lalternative-des-options-sur-actions-et-warrants-fete",
+        "date": "25/01/2024"
     },
     "article_2": {
-        "titre": "Limitation des contrats journaliers successifs dans le travail temporaire : évitez des contributions ONSS supplémentaires.",
-        "lien": "https://www.sdworx.be/fr-be/actua-tendances/talent/limitation-des-contrats-journaliers-successifs-dans-le-travail-temporaire",
-        "date": "24/11/2023"
+        "titre": "La technologie des RH et l'IA dans la gestion des talents : garder l'aspect humain",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/talent/la-technologie-des-rh-et-lai",
+        "date": "23/01/2024"
     },
     "article_3": {
-        "titre": "Protection obligatoire des lanceurs d’alerte – prenez les devants",
-        "lien": "https://www.sdworx.be/fr-be/actua-tendances/administration-du-personnel/protection-obligatoire-des-lanceurs-dalerte-prenez-les",
-        "date": "20/11/2023"
+        "titre": "Une gestion des talents plus transparente en 5 étapes",
+        "lien": "https://www.sdworx.be/fr-be/actua-tendances/talent/gestion-talents-plus-transparente",
+        "date": "12/01/2024"
     },
     "article_4": {
-        "titre": "4 raisons de repenser votre stratégie des talents",
-        "lien": "https://www.sdworx.be/fr-be/actua-tendances/talent/4-raisons-strategie-des-talents",
-        "date": "16/11/2023"
-    },
-    "article_5": {
-        "titre": "Ressources humaines en 2024 : à quoi nous attendre ?",
-        "lien": "https://www.sdworx.be/fr-be/actua-tendances/administration-du-personnel/tour-dhorizon-2024",
-        "date": "15/11/2023"
-    },
-    "article_6": {
-        "titre": "Qu’est-ce qui a changé en 2023 ?",
-        "lien": "https://www.sdworx.be/fr-be/actua-tendances/administration-du-personnel/retrospective-mesures-socio-juridiques-2023",
-        "date": "15/11/2023"
-    },
-    "article_7": {
-        "titre": "Pécule et jours de vacances : ce qui change en 2024 ",
-        "lien": "https://www.sdworx.be/fr-be/actua-tendances/bien-etre-sante/vacances-ce-qui-change-en-2024",
-        "date": "10/11/2023"
-    },
-    "article_8": {
-        "titre": "Accord budgétaire 2024 : 5 mesures expliquées ",
-        "lien": "https://www.sdworx.be/fr-be/actua-tendances/payroll/accord-sur-le-budget-federal-2024",
-        "date": "19/10/2023"
-    },
-    "article_9": {
-        "titre": "Migration de SAP On-Premise vers SAP SuccessFactors : la puissance de la transformation cloud des RH",
-        "lien": "https://www.sdworx.be/fr-be/actua-tendances/logiciel-rh-numerisation/migration-de-sap-premise-vers-sap-successfactors",
-        "date": "17/10/2023"
-    },
-    "article_10": {
-        "titre": "6 questions sur le budget mobilité",
+        "titre": "Le budget mobilité en 6 questions",
         "lien": "https://www.sdworx.be/fr-be/actua-tendances/payroll/budget-mobilite-6-questions",
-        "date": "20/12/2023"
+        "date": "12/01/2024"
     }
 }'''

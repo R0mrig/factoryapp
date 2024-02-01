@@ -5,8 +5,13 @@ json_response_securex = '''{
         "date": "29 dec 2023"
     },
     "article_2": {
-        "titre": "Hoeveel kost een werknemer jou?",
-        "lien": "https://www.securex.be/nl/blog/werkgevers/hoeveel-kost-een-werknemer-u",
-        "date": "8 jan 2024"
+        "titre": "Aftrekbare kosten: alle ins en outs op een rij",
+        "lien": "https://www.securex.be/nl/blog/ondernemers/aftrekbare-kosten-alle-ins-en-outs-op-een-rij",
+        "date": "25 okt 2023"
+    },
+    "article_3": {
+        "titre": "Langdurig absenteïsme? Voorkomen is beter dan genezen",
+        "lien": "https://www.securex.be/nl/blog/werkgevers/langdurig-absenteisme",
+        "date": "26 apr 2023"
     }
 }'''

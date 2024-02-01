@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 import subprocess
@@ -86,22 +87,59 @@ def user_list_create(request):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def user_sources(request):
     if request.method == 'GET':
         email = request.query_params.get('email')
         if email:
-            user_sources = UserSource.objects.filter(user__email=email)
-            serializer = UserSourceSerializer(user_sources, many=True)
-            return Response(serializer.data)
-        return Response({'detail': 'Email parameter is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                user = User.objects.get(email=email)
+                user_sources = UserSource.objects.filter(user=user)
+                serializer = UserSourceSerializer(user_sources, many=True)
+                return Response(serializer.data)
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'detail': 'Email parameter is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'POST':
-        serializer = UserSourceSerializer(data=request.data)
+        email = request.data.get('email')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Préparer les données pour la création de l'objet UserSource
+        user_source_data = request.data.copy()
+        user_source_data['user'] = user.id
+        user_id = user.id
+
+        serializer = UserSourceSerializer(data=user_source_data)
         if serializer.is_valid():
             serializer.save()
+
+            # Exécuter le script trends.py après la sauvegarde
+            subprocess.call(["python", "/Users/romain-pro/Desktop/factoryapp/trends.py", str(user_id)])
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def execute_trends(request):
+    email = request.data.get('email')
+    user = get_object_or_404(User, email=email)
+    user_id = user.id
+
+    # Exécuter le script trends.py avec l'ID de l'utilisateur
+    subprocess.call(["python", "/Users/romain-pro/Desktop/factoryapp/trends.py", str(user_id)])
+
+    return Response({"message": "Trends processing started for user " + email}, status=status.HTTP_200_OK)
+
 
 
 

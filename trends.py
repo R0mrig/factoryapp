@@ -2,6 +2,7 @@ import os
 import django
 import requests
 import json
+import sys
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
@@ -12,6 +13,9 @@ from colorama import Fore, Style
 import colorama
 from urllib.parse import quote
 from openai import OpenAI
+import subprocess
+from subprocess import call
+
 
 BASE_PATH = '/Users/romain-pro/Desktop/factoryapp'
 
@@ -44,17 +48,21 @@ from database.models import UserTrends
 
 def get_user_sources(user_id):
     try:
-        user = User.objects.get(pk=user_id)
-        user_sources = UserSource.objects.filter(user=user)
+        user_sources = UserSource.objects.filter(user_id=user_id)
         return list(user_sources.values('competitors', 'linkedin', 'references', 'youtube'))
-    except User.DoesNotExist:
-        return None  # Retourner None si l'utilisateur n'existe pas
+    except UserSource.DoesNotExist:
+        return None
     except Exception as e:
         print(str(e))
         return None
 
-# Récupération des sources pour l'utilisateur avec ID = 1
-user_sources = get_user_sources(1)
+# Récupérer l'ID de l'utilisateur depuis l'argument de la ligne de commande
+if len(sys.argv) > 1:
+    user_id = sys.argv[1]
+    user_sources = get_user_sources(user_id)
+else:
+    print("Aucun ID utilisateur fourni.")
+    sys.exit(1)
 
 
 ### TRAITEMENT COMPETITORS ###
@@ -371,8 +379,6 @@ print(result)
 
 ### ANALYSES DES CONTENUS ###
 
-user_id = 1  
-
 # Fonction pour sauvegarder les informations de l'article dans la base de données
 def save_to_database(article_info, user_id):
     try:
@@ -463,3 +469,10 @@ for index, (article_key, article) in enumerate(articles.items()):
     else:
         print(scraped_article['erreur'])
 
+
+# Appel à User_trends.py avec l'ID de l'utilisateur
+path_to_user_trends = os.path.join(BASE_PATH, 'User_trends.py')
+subprocess.call(["python", path_to_user_trends, str(user_id)])
+
+# Fin du script
+sys.exit(0)
