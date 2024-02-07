@@ -1,79 +1,119 @@
 import os
-import django
+import sys
 import requests
 import json
-import sys
 import re
-from urllib.parse import urlparse
-from bs4 import BeautifulSoup
-import datetime
-import tempfile
-import openai
 from colorama import Fore, Style
 import colorama
-from urllib.parse import quote
-from openai import OpenAI
+from urllib.parse import urlparse, quote
+from bs4 import BeautifulSoup
+import datetime
 import subprocess
-from subprocess import call
+import colorama
+import tempfile
+import shutil
+import django
+from openai import OpenAI
+from django.core.exceptions import ObjectDoesNotExist
 
 
-BASE_PATH = '/Users/romain-pro/Desktop/factoryapp'
+# Initialisation de Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'factoryapp.settings')
+django.setup()
 
+from database.models import User, UserSource, UserTrends
 
+# Fonction pour lire la clé API d'un fichier
 def open_file(filepath):
     with open(filepath, 'r', encoding='utf-8') as infile:
         return infile.read()
 
+# Initialisation du client OpenAI
 client = OpenAI(api_key=open_file("openaiapikey.txt"))
-
-
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'factoryapp.settings')
-django.setup()
-
-
-# Fonction pour extraire les noms des entreprises à partir des URL
-def extract_company_names_from_urls(urls):
-    company_names = []
-    for url in urls:
-        parsed_url = urlparse(url)
-        # Extrait la partie du nom de domaine principal, exemple: 'www.securex.be' -> 'securex'
-        company_name = parsed_url.netloc.split('.')[-2]
-        company_names.append(company_name)
-    return company_names
-
-from database.models import User, UserSource
-from database.models import UserTrends
-
-
-def get_user_sources(user_id):
-    try:
-        user_sources = UserSource.objects.filter(user_id=user_id)
-        return list(user_sources.values('competitors', 'linkedin', 'references', 'youtube'))
-    except UserSource.DoesNotExist:
-        return None
-    except Exception as e:
-        print(str(e))
-        return None
 
 # Récupérer l'ID de l'utilisateur depuis l'argument de la ligne de commande
 if len(sys.argv) > 1:
     user_id = sys.argv[1]
-    user_sources = get_user_sources(user_id)
 else:
     print("Aucun ID utilisateur fourni.")
     sys.exit(1)
 
+# Création d'un répertoire temporaire spécifique à l'utilisateur
+BASE_PATH = '/Users/romain-pro/Desktop/factoryapp'
+TEMP_DIR = os.path.join(BASE_PATH, 'Temp', str(user_id))  # Utilisez str(user_id) pour convertir l'ID en une chaîne
+os.makedirs(TEMP_DIR, exist_ok=True)
 
-### TRAITEMENT COMPETITORS ###
+user_temp_dir = TEMP_DIR
 
-# Vérification si des sources ont été trouvées
+
+print(f"Répertoire temporaire pour l'utilisateur {user_id} : {TEMP_DIR}")
+
+def get_user_sources(user_id):
+    """
+    Récupère les sources de l'utilisateur spécifié par son ID.
+    """
+    try:
+        user = User.objects.get(pk=user_id)
+        user_sources = UserSource.objects.filter(user_id=user_id).first()
+        if user_sources:
+            # Utiliser une fonction helper pour traiter les champs qui pourraient être des listes ou des chaînes
+            def process_field(field):
+                if isinstance(field, str):
+                    return field.split(',')
+                elif isinstance(field, list):
+                    return field
+                else:
+                    return []
+
+            return {
+                'competitors': process_field(user_sources.competitors),
+                'linkedin': user_sources.linkedin,
+                'references': process_field(user_sources.references),
+                'youtube': user_sources.youtube
+            }
+    except ObjectDoesNotExist:
+        print(f"L'utilisateur avec l'ID {user_id} n'existe pas dans la base de données.")
+        return None
+    except Exception as e:
+        print(f"Erreur lors de la récupération des sources pour l'utilisateur {user_id}: {e}")
+        return None
+
+def extract_company_names_from_urls(urls):
+    """
+    Extrait les noms des entreprises à partir des URLs fournies.
+    """
+    company_names = []
+    for url in urls:
+        parsed_url = urlparse(url.strip())  # strip() pour enlever les espaces en début/fin d'URL
+        # Extrait la partie du nom de domaine principal, exemple: 'www.securex.be' -> 'securex'
+        domain_parts = parsed_url.netloc.split('.')
+        if 'www' in domain_parts:
+            company_name = domain_parts[1]  # Prendre la partie suivante si 'www' est présent
+        else:
+            company_name = domain_parts[0]  # Prendre la première partie sinon
+        company_names.append(company_name.capitalize())
+    return company_names
+
+user_sources = get_user_sources(user_id)
+
 if user_sources:
-    # Extraction des URLs des concurrents
-    competitors_urls = user_sources[0]['competitors']
-    # Extraction des noms des entreprises à partir des URLs
-    company_names = extract_company_names_from_urls(competitors_urls)
+    print("Sources récupérées avec succès pour l'utilisateur ID:", user_id)
+    print(user_sources)
+else:
+    print("Impossible de récupérer les sources pour l'utilisateur ID:", user_id)
+    sys.exit(1)
 
+# Maintenant, vous pouvez extraire les URL des concurrents en utilisant les données de user_sources
+competitors_urls = user_sources.get('competitors', [])  # Utilisez une liste vide par défaut si la clé 'competitors' n'existe pas
+
+# Maintenant, vous pouvez utiliser la variable competitors_urls dans votre code
+company_names = extract_company_names_from_urls(competitors_urls)
+print("Noms des entreprises extraites des URLs :", company_names)
+
+
+# Suite du nouveau script
+
+# Suite du code après l'extraction des noms des entreprises
 def get_final_url(url):
     # Obtenir l'URL finale après redirection
     try:
@@ -85,49 +125,32 @@ def get_final_url(url):
     except requests.RequestException:
         return None
 
-def find_blog_or_news_section(url):
-    # Chercher une section blog ou news dans le contenu HTML
+
+
+def find_blog_or_news_section(url, user_temp_dir):
     try:
         response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        blog_or_news_content = soup.find_all(['section', 'div'], text=re.compile("blog|news", re.IGNORECASE))
-        if blog_or_news_content:
-            return [nb.get_text(strip=True) for nb in blog_or_news_content]
-        else:
-            return []
+        if response.status_code == 200:
+            # Supposons que si nous obtenons une réponse, le blog est valide.
+            # Pas besoin de chercher spécifiquement du contenu 'blog' ou 'news' ici.
+            return url  # Retourne directement l'URL
     except requests.RequestException as e:
         print(f"Erreur lors de la recherche dans {url}: {e}")
-        return []
+    return None
 
-found_blog_urls = []  # Liste pour stocker les URL de blogs valides
+# Liste pour stocker les chemins des fichiers de contenu blog ou news
+blog_or_news_files = []
 
-
-for competitor_url in competitors_urls:
+for competitor_url in user_sources['competitors']:
     test_blog_url = f"{competitor_url.rstrip('/')}/blog"
     final_url = get_final_url(test_blog_url)
 
-    if final_url and final_url != test_blog_url:
-        print(f"Redirection détectée. URL du blog pour {competitor_url}: {final_url}")
-        found_blog_urls.append(final_url)
-    elif final_url:
-        print(f"Blog valide trouvé pour {competitor_url}: {final_url}")
-        found_blog_urls.append(final_url)
-    else:
-        print(f"Aucun blog valide pour {competitor_url}. Recherche de sections 'blog' ou 'news'.")
-        blog_or_news_content = find_blog_or_news_section(competitor_url)
-        if blog_or_news_content:
-            print(f"Contenu 'blog' ou 'news' trouvé pour {competitor_url}:")
-            for content in blog_or_news_content:
-                print(content)
+    if final_url:
+        print(f"Blog trouvé pour {competitor_url}: {final_url}")
+        blog_or_news_files.append(final_url)  # Ajoutez directement l'URL du blog
 
 
-###   POUR CHAQUE BLOG TROUVER _ FIND BLOG ARTICLES ###
-
-TEMP_DIR = os.path.join(BASE_PATH, 'Temp')
-
-# Assurer la création du dossier temporaire
-os.makedirs(TEMP_DIR, exist_ok=True)
-
+print(f"Voici les urls de blog :{blog_or_news_files}")
 
 # Initialisation de colorama
 colorama.init(autoreset=True)
@@ -182,20 +205,23 @@ def lire_prompt_extractgpt():
 
 
 # Chargement du prompt pour ExtractGPT
+
 prompt_extractgpt = lire_prompt_extractgpt()
 
-
 temp_files = []
-for blog_url, company_name in zip(found_blog_urls, company_names):
+for blog_url in blog_or_news_files:
+    print(f"Traitement du blog : {blog_url}")
+    # Utilisez ici blog_url directement pour le scraping et l'analyse
     temp_file_name = scraper_et_sauvegarder_blog(blog_url)
-    temp_response_file = analyser_contenu_avec_IA(temp_file_name, prompt_extractgpt, company_name)
+    identifier = quote(blog_url, safe='')  # Utilisez blog_url pour identifier si nécessaire
+    temp_response_file = analyser_contenu_avec_IA(temp_file_name, prompt_extractgpt, identifier)
+    
     if temp_response_file:
-        # Modification ici: Renommer le fichier temporaire pour chaque entreprise
-        final_file_name = os.path.join(TEMP_DIR, f'set_up_blog.{company_name}.txt')
+        final_file_name = os.path.join(user_temp_dir, f'analysis_result_{identifier}.txt')
         os.rename(temp_response_file, final_file_name)
-        print(f"Résultats pour {company_name} sauvegardés dans {final_file_name}")
-    os.remove(temp_file_name)  # Supprimer le fichier HTML temporaire après analyse
-
+        print(f"Résultats de l'analyse sauvegardés dans {final_file_name}")
+    
+    os.remove(temp_file_name)  # Nettoyez après analyse
 # Fonction pour imprimer les articles
 def imprimer_articles(json_response):
     try:
@@ -222,88 +248,7 @@ for company_name in company_names:
         print(f"Erreur lors de la lecture du fichier pour {company_name}: {e}")
 
 
-"""
-### TRAITEMENT REFERENCES ###
-        
-        # Fonction pour lire le prompt de referenceGPT
-def lire_prompt_referencegpt():
-    prompt_referencegpt = os.path.join(BASE_PATH, 'Prompts', 'ReferenceGPT.txt')
-    with open(prompt_referencegpt, 'r', encoding='utf-8') as file:
-        return file.read()
 
-# Chargement du prompt pour referenceGPT
-prompt_referencegpt = lire_prompt_referencegpt()
-
-# Extraction des URLs des "references"
-references_urls = user_sources[0]['references']
-
-# Fonction pour analyser les références avec ExtractGPT
-def analyser_references_avec_IA(file_path, prompt_referencegpt, company_name):
-    with open(file_path, 'r') as file:
-        content = file.read()
-
-    messages = [
-        {"role": "system", "content": prompt_referencegpt},
-        {"role": "user", "content": content}
-    ]
-
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4-1106-preview",
-            messages=messages,
-            max_tokens=4000
-        )
-
-        if response.choices and len(response.choices) > 0:
-            result = response.choices[0].message.content
-            temp_response_file_path = os.path.join(TEMP_DIR, f'response_{company_name}_reference.txt')
-            with open(temp_response_file_path, 'w') as temp_file:
-                temp_file.write(f"json_response_{company_name}_reference = '''{result}'''\n")
-            return temp_response_file_path
-        else:
-            print(Fore.RED + "Aucune réponse valide pour " + file_path + Style.RESET_ALL)
-            return None
-
-    except Exception as e:
-        print(Fore.RED + "Erreur lors de l'analyse IA pour " + file_path + ": " + str(e) + Style.RESET_ALL)
-        return None
-
-# Traiter chaque URL de référence
-temp_files_references = []
-for reference_url, company_name in zip(references_urls, company_names):
-    temp_file_name = scraper_et_sauvegarder_blog(reference_url)  # Utiliser la même fonction de scraping
-    temp_response_file = analyser_references_avec_IA(temp_file_name, prompt_referencegpt, company_name)
-    if temp_response_file:
-        temp_files_references.append(temp_response_file)
-    os.remove(temp_file_name)
-
-# Compiler les fichiers de références
-compiled_references_path = os.path.join(TEMP_DIR, 'set_up_references.txt')
-with open(compiled_references_path, 'w') as compiled_file:
-    for file_path in temp_files_references:
-        with open(file_path, 'r') as temp_file:
-            compiled_file.write(temp_file.read() + '\n')
-        os.remove(file_path)
-
-# Lire le fichier compilé de références
-with open(compiled_references_path, 'r') as compiled_file:
-    exec(compiled_file.read())
-
-# Imprimer les articles de référence
-for company_name in company_names:
-    json_response_var = f'json_response_{company_name}_reference'
-    if json_response_var in globals():
-        print(f"Articles de référence pour {company_name}:")
-        imprimer_articles(globals()[json_response_var])
-
-"""
-
-### CLEAN AND GROUP DATA ###
-
-
-# Chemin du répertoire temporaire
-temp_dir_path = '/Users/romain-pro/Desktop/factoryapp/Temp/'
-output_file_path = '/Users/romain-pro/Desktop/factoryapp/Temp/combined_articles.json'
 
 def clean_and_combine_json(directory):
     combined_data = {}
@@ -325,6 +270,9 @@ def clean_and_combine_json(directory):
 
     return combined_data
 
+temp_dir_path = TEMP_DIR
+output_file_path = os.path.join(temp_dir_path, 'combined_articles.json')
+
 # Nettoyer et combiner les contenus JSON de tous les fichiers du répertoire
 combined_data = clean_and_combine_json(temp_dir_path)
 
@@ -339,7 +287,7 @@ print("Fusion terminée, fichier créé :", output_file_path)
 ### TRAITEMENTs ET  ###
 
 # Chemin du fichier combiné
-combined_file_path = '/Users/romain-pro/Desktop/factoryapp/Temp/combined_articles.json'
+combined_file_path = os.path.join(TEMP_DIR, 'combined_articles.json')
 
 
 
@@ -403,8 +351,8 @@ def save_to_database(article_info, user_id):
 
 combined_file_path = '/Users/romain-pro/Desktop/factoryapp/Temp/combined_articles.json'
 
-TRENDS_PATH = os.path.join(BASE_PATH, 'Trends')
-combined_file_path = os.path.join(BASE_PATH, 'Temp', 'combined_articles.json')
+TRENDS_PATH = TEMP_DIR
+combined_file_path = os.path.join(TEMP_DIR, 'combined_articles.json')
 
 # Assurer la création du dossier Trends
 os.makedirs(TRENDS_PATH, exist_ok=True)
@@ -469,6 +417,12 @@ for index, (article_key, article) in enumerate(articles.items()):
     else:
         print(scraped_article['erreur'])
 
+# Supprimer le dossier temporaire
+try:
+    shutil.rmtree(TEMP_DIR)
+    print(f"Dossier temporaire {TEMP_DIR} supprimé avec succès.")
+except Exception as e:
+    print(f"Erreur lors de la suppression du dossier temporaire {TEMP_DIR}: {e}")
 
 # Appel à User_trends.py avec l'ID de l'utilisateur
 path_to_user_trends = os.path.join(BASE_PATH, 'User_trends.py')

@@ -87,7 +87,7 @@ def user_list_create(request):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated]) 
 def user_sources(request):
     if request.method == 'GET':
         email = request.query_params.get('email')
@@ -129,7 +129,7 @@ def user_sources(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated]) 
 def execute_trends(request):
     email = request.data.get('email')
     user = get_object_or_404(User, email=email)
