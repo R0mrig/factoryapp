@@ -37,17 +37,16 @@ def open_file(filepath):
 # Configuration du client OpenAI
 client = OpenAI(api_key=open_file("openaiapikey.txt"))
 
-""""
+
 
 if len(sys.argv) > 1:
     user_id = sys.argv[1]
 else:
     print("Aucun ID utilisateur fourni.")
     sys.exit(1)
-"""
+
 ### Trends & topics GENERATION ###
 
-user_id = '40'
 
 
 PROMPT_PATH = os.path.join(BASE_PATH, 'Prompts')
