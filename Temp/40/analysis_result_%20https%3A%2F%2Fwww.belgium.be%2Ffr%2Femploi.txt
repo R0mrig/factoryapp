@@ -1,0 +1,17 @@
+json_response_%20https%3A%2F%2Fwww.belgium.be%2Ffr%2Femploi = '''{
+    "article_1": {
+        "titre": "Selor devient Travaillerpour.be",
+        "lien": "https://www.belgium.be/fr/actualites/2023/selor_devient_travaillerpourbe",
+        "date": "NA"
+    },
+    "article_2": {
+        "titre": "Réforme du statut d'artiste",
+        "lien": "https://www.belgium.be/fr/actualites/2023/reforme_du_statut_dartiste",
+        "date": "NA"
+    },
+    "article_3": {
+        "titre": "En 2023, un étudiant peut travailler 600 heures au lieu de 475 heures !",
+        "lien": "https://www.belgium.be/fr/actualites/2023/en_2023_un_etudiant_peut_travailler_600_heures_au_lieu_de_475_heures",
+        "date": "NA"
+    }
+}'''

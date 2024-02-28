@@ -84,9 +84,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'BD2',  # Le nom de votre base de données
         'USER': 'Admin',  # Le nom d'utilisateur pour accéder à votre base de données, à ajuster si différent
-        'PASSWORD': 'YiPOklMI786tRFdE',  # Le mot de passe de l'utilisateur de la base de données
+        'PASSWORD': 'YiPOklMI786tRFdE',  # Le mot de passe de l'utilisateur de la base de donnée
         'HOST': 'fl292586-001.eu.clouddb.ovh.net',  # L'adresse de l'hôte de votre base de données
         'PORT': '35657',  # Le port fourni pour votre base de données
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
     }
 }
 

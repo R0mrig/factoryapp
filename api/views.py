@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
+import threading
 import subprocess
 import json
 import requests
@@ -17,9 +18,11 @@ from .serializers import (
     ArticleSerializer, 
     TrendSerializer, 
     TailorTrendSerializer, 
-    CustomTokenObtainPairSerializer
+    CustomTokenObtainPairSerializer,
+    LinkedInPostSerializer,
 )
-from database.models import User, UserSource, Article
+
+from database.models import User, UserSource, Article, LinkedInPost
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -87,7 +90,6 @@ def user_list_create(request):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated]) 
 def user_sources(request):
     if request.method == 'GET':
         email = request.query_params.get('email')
@@ -104,28 +106,27 @@ def user_sources(request):
 
     elif request.method == 'POST':
         email = request.data.get('email')
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-        # Préparer les données pour la création de l'objet UserSource
-        user_source_data = request.data.copy()
-        user_source_data['user'] = user.id
-        user_id = user.id
-
-        serializer = UserSourceSerializer(data=user_source_data)
-        if serializer.is_valid():
-            serializer.save()
-
-            # Exécuter le script trends.py après la sauvegarde
-            subprocess.call(["python", "/Users/romain-pro/Desktop/factoryapp/trends.py", str(user_id)])
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+        urls = request.data.get('competitors', [])
+        
+        user, created = User.objects.get_or_create(email=email)
+        
+        linkedin_urls = [url for url in urls if "linkedin" in url.lower()]
+        other_urls = [url for url in urls if "linkedin" not in url.lower()]
+        
+        # Conversion des listes d'URLs en chaînes de caractères séparées par des virgules
+        linkedin_urls_str = ", ".join(linkedin_urls)
+        other_urls_str = ", ".join(other_urls)
+        
+        user_source, created = UserSource.objects.update_or_create(
+            user=user,
+            defaults={'linkedin': linkedin_urls_str, 'competitors': other_urls_str}
+        )
+        
+        subprocess.call(["python", "/Users/romain-pro/Desktop/factoryapp/LinkedIn_scrap.py", str(user.id)])
+        
+        subprocess.call(["python", "/Users/romain-pro/Desktop/factoryapp/trends.py", str(user.id)])
+        
+        return Response({'message': 'URLs processed successfully'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -251,3 +252,26 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 class CustomTokenRefreshView(TokenRefreshView):
     # Si vous avez besoin de personnaliser, ajoutez votre logique ici
     pass
+
+
+def run_script_in_thread(user_id, post_id):
+    script_path = "//Users/romain-pro/Desktop/factoryapp/LinkedInPost_analyse.py"
+    subprocess.run(["python", script_path, user_id, post_id])
+
+
+@api_view(['POST'])
+def linkedin_post_create(request):
+    serializer = LinkedInPostSerializer(data=request.data)
+    if serializer.is_valid():
+        linkedin_post = serializer.save()
+        user_id = request.data.get('user_id')  # Modification ici pour utiliser l'ID utilisateur depuis le corps de la requête
+
+
+        # Lancer le script dans un thread séparé
+        thread = threading.Thread(target=run_script_in_thread, args=(user_id, str(linkedin_post.id)))
+        thread.start()
+
+        return Response({'message': 'Post LinkedIn enregistré avec succès', 'post_id': linkedin_post.id}, status=201)
+    else:
+        return Response(serializer.errors, status=400)
+    

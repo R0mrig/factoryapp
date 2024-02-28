@@ -16,11 +16,12 @@ from openai import OpenAI
 import time
 
 
+
 # Configuration de Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'factoryapp.settings')
 django.setup()
 
-from database.models import User, UserTrends
+from database.models import User, UserTrends, Trend
 
 # Configuration des chemins
 BASE_PATH = '/Users/romain-pro/Desktop/factoryapp'
@@ -36,17 +37,37 @@ def open_file(filepath):
 # Configuration du client OpenAI
 client = OpenAI(api_key=open_file("openaiapikey.txt"))
 
+""""
 
 if len(sys.argv) > 1:
     user_id = sys.argv[1]
 else:
     print("Aucun ID utilisateur fourni.")
     sys.exit(1)
-
+"""
 ### Trends & topics GENERATION ###
+
+user_id = '40'
+
 
 PROMPT_PATH = os.path.join(BASE_PATH, 'Prompts')
 
+def enregistrer_tendances(user_id, tendances):
+    user = User.objects.get(pk=user_id)  # Assurez-vous que l'utilisateur existe
+    for cle, tendance in tendances.items():  # Itérez sur les clés (topic_x) et valeurs (détails de chaque tendance)
+        # Assurez-vous que toutes les clés nécessaires sont présentes dans chaque dictionnaire de tendance
+        try:
+            Trend.objects.create(
+                user=user,
+                titre=tendance.get('titre', 'Titre par défaut'),  # Utilisez get pour éviter KeyError si la clé est absente
+                resume=tendance.get('resume', 'Résumé par défaut'),
+                main_topics=tendance.get('main_topics', 'Aucun sujet principal'),
+                secondary_topics=tendance.get('secondary_topics', 'Aucun sujet secondaire'),
+                ponderation=tendance.get('ponderation', 0)  # Assurez-vous que la pondération est un décimal approprié
+            )
+        except Exception as e:
+            print(f"Erreur lors de l'enregistrement de la tendance: {e}")
+            # Vous pouvez choisir de lever une exception, de continuer avec une valeur par défaut, ou de simplement logger l'erreur
 
 def get_user_trends_data(user_id):
     try:
@@ -71,6 +92,7 @@ def get_user_trends_data(user_id):
     except Exception as e:
         print(Fore.RED + f"Erreur lors de la récupération des tendances: {e}")
         return [], [], [], []
+
 
 
 # Récupération des informations
@@ -168,6 +190,8 @@ prompt_trendsgpt = lire_prompt_trendsgpt()
 response_data = analyser_tendances_avec_IA(data_to_analyze, prompt_trendsgpt)
 if response_data:
     creer_et_envoyer_json(response_data, "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/trends", user_email)
+    enregistrer_tendances(user_id, response_data)
+
 
 
 
@@ -199,7 +223,7 @@ def analyser_suggestions_avec_IA(data, prompt_suggestiongpt):
 def creer_et_envoyer_json_suggestions(response_data, webhook_url, user_email):
     for i, (_, value) in enumerate(response_data.items()):
         filename = f"suggestion_{i + 1}.json"
-        suggestion_data = {"suggestion": value, "user_email": user_email}
+        suggestion_data = {"suggestion": value, "user_email": user_email,}
         with open(filename, 'w', encoding='utf-8') as file:
             json.dump(suggestion_data, file, indent=4, ensure_ascii=False)
 
@@ -229,6 +253,7 @@ def envoyer_a_bubble(filename, webhook_url):
 # Utilisation de data_to_analyze déjà défini dans le script précédent
 prompt_suggestiongpt = lire_prompt_suggestiongpt()
 response_data = analyser_suggestions_avec_IA(data_to_analyze, prompt_suggestiongpt)
+
 if response_data:
     creer_et_envoyer_json_suggestions(response_data, "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/suggestions", user_email)
 
@@ -237,6 +262,65 @@ def supprimer_fichiers_json():
         if fichier.endswith(".json") and (fichier.startswith("topic_") or fichier.startswith("suggestion_")):
             os.remove(fichier)
             print(f"Fichier {fichier} supprimé.")
+
+
+
+def recuperer_tendances_utilisateur(user_id):
+    return Trend.objects.filter(user_id=user_id)
+
+
+def filtrer_user_trends_par_tendance(tendance):
+    user_trends = UserTrends.objects.all()
+    titres_et_resumes = []
+
+    # Supposons que main_topics et secondary_topics sont stockés comme des chaînes de caractères séparées par des virgules
+    main_topics = tendance.main_topics.split(", ")
+    secondary_topics = tendance.secondary_topics.split(", ")
+
+    for user_trend in user_trends:
+        if any(topic in user_trend.main_topics for topic in main_topics) or any(topic in user_trend.topics_secondaires for topic in secondary_topics):
+            titres_et_resumes.append({'titre': user_trend.titre, 'resume': user_trend.resume})
+
+    return titres_et_resumes
+
+def creer_et_envoyer_json_suggestions2(response_data, webhook_url, user_email, titre_tendance):
+    for i, (_, value) in enumerate(response_data.items()):
+        filename = f"suggestion_{i + 1}.json"
+        suggestion_data = {
+            "suggestion": value, 
+            "user_email": user_email,
+            "titre_tendance": titre_tendance  # Ajoute le titre de la tendance ici
+        }
+        with open(filename, 'w', encoding='utf-8') as file:
+            json.dump(suggestion_data, file, indent=4, ensure_ascii=False)
+
+        status, text = envoyer_a_bubble(filename, webhook_url)
+        print(f"Envoi de la suggestion {filename} - Status: {status}, Response: {text}")
+        time.sleep(5)  # Pause de 5 secondes avant l'envoi du fichier suivant
+
+    # Supprimer les fichiers JSON créés après leur envoi
+    for fichier in os.listdir():
+        if fichier.endswith(".json") and fichier.startswith("suggestion_"):
+            os.remove(fichier)
+            print(f"Fichier {fichier} supprimé.")
+
+
+
+def generer_suggestions_pour_toutes_tendances(user_id):
+    tendances = recuperer_tendances_utilisateur(user_id)
+    prompt_suggestiongpt = lire_prompt_suggestiongpt()
+
+    for tendance in tendances:
+        titres_et_resumes = filtrer_user_trends_par_tendance(tendance)
+        if titres_et_resumes:  # Assure-toi d'avoir des données à envoyer
+            data_json = json.dumps(titres_et_resumes, indent=4, ensure_ascii=False)
+            response_data = analyser_suggestions_avec_IA(data_json, prompt_suggestiongpt)
+            if response_data:
+               creer_et_envoyer_json_suggestions2(response_data, "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/preshoot_suggestion", user_email, tendance.titre)
+            
+        print(response_data)
+
+generer_suggestions_pour_toutes_tendances(user_id)
 
 # Appel de la fonction pour supprimer les fichiers JSON
 supprimer_fichiers_json()

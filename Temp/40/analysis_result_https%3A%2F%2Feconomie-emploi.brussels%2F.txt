@@ -1,0 +1,27 @@
+json_response_https%3A%2F%2Feconomie-emploi.brussels%2F = '''{
+    "article_1": {
+        "titre": "Votre entreprise est-elle « exemplaire » ?",
+        "lien": "https://economie-emploi.brussels/news-guide-exemplarite",
+        "date": "26 février 2024"
+    },
+    "article_2": {
+        "titre": "Lancement \"BeCircular\" 2024",
+        "lien": "https://economie-emploi.brussels/news-appel-projets-becircular-2024",
+        "date": "22 février 2024"
+    },
+    "article_3": {
+        "titre": "Invitation à la « Foire aux labels »",
+        "lien": "https://economie-emploi.brussels/exemplarite-foire-labels-news",
+        "date": "15 février 2024"
+    },
+    "article_4": {
+        "titre": "BRUCEFO lance un premier cycle de formations !",
+        "lien": "https://economie-emploi.brussels/brucefo-lance-un-premier-cycle-de-formations",
+        "date": "06 février 2024"
+    },
+    "article_5": {
+        "titre": "Réévaluez les nutri-scores de vos produits avec Brucefo",
+        "lien": "https://economie-emploi.brussels/news-nutri-score-avec-brucefo",
+        "date": "02 février 2024"
+    }
+}'''

@@ -1,0 +1,17 @@
+json_response_%20https%3A%2F%2Fwww.leforem.be%2F = '''{
+    "article_1": {
+        "titre": "Comment postuler de manière originale ?",
+        "lien": "https://www.leforem.be/actualites/postuler-de-maniere-originale.html",
+        "date": "26 février 2024"
+    },
+    "article_2": {
+        "titre": "Conducteur poids lourd, un métier en pénurie ouvert aux femmes",
+        "lien": "https://www.leforem.be/actualites/conducteur-poids-lourd.html",
+        "date": "16 février 2024"
+    },
+    "article_3": {
+        "titre": "Elias, de stagiaire à technicien de surface chez IKEA",
+        "lien": "https://www.leforem.be/actualites/elias-technicien-surface-chez-ikea.html",
+        "date": "12 février 2024"
+    }
+}'''

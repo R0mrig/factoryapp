@@ -10,7 +10,7 @@ INSTRUCTIONS :
 
 - OUTPUT : 
      - Tu fourniras ta réponses en français UNIQUEMENT. 
-     - en suivant RIGOUREUSEMENT le format suivant : 
+     - en suivant STRICTEMENT le format suivant : 
 
 {
         "titre": "titre",

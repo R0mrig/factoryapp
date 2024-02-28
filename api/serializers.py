@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from database.models import User
-from database.models import UserSource, User
+from database.models import UserSource, User, LinkedInPost
 from database.models import Article
 from rest_framework import serializers
 
@@ -91,3 +91,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Par exemple, nom d'utilisateur, rôles, etc.
         
         return data
+    
+
+class LinkedInPostSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = LinkedInPost
+            fields = '__all__'

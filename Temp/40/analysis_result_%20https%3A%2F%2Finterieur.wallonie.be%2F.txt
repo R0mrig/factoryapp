@@ -1,0 +1,22 @@
+json_response_%20https%3A%2F%2Finterieur.wallonie.be%2F = '''{
+    "article_1": {
+        "titre": "Eté solidaire 2024",
+        "lien": "https://interieur.wallonie.be/a-la-une/ete-solidaire-2024",
+        "date": "27/02/2024"
+    },
+    "article_2": {
+        "titre": "Circulaire de prudence à l'approche des élections communales et provinciales du 13 octobre 2024",
+        "lien": "https://interieur.wallonie.be/a-la-une/elections-2024-circulaire-prudence",
+        "date": "23/02/2024"
+    },
+    "article_3": {
+        "titre": "Marchés publics et de concessions de services et de travaux - Nouvelle circulaire",
+        "lien": "https://interieur.wallonie.be/a-la-une/circulaire-marches-publics-concessions-services-travaux",
+        "date": "21/02/2024"
+    },
+    "article_4": {
+        "titre": "Newsletter numéro 2 des marchés publics du SPW Intérieur et Action sociale",
+        "lien": "https://interieur.wallonie.be/a-la-une/newsletter-marches-publics",
+        "date": "08/02/2024"
+    }
+}'''

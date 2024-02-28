@@ -31,12 +31,17 @@ def open_file(filepath):
 # Initialisation du client OpenAI
 client = OpenAI(api_key=open_file("openaiapikey.txt"))
 
+
+""""
 # Récupérer l'ID de l'utilisateur depuis l'argument de la ligne de commande
 if len(sys.argv) > 1:
     user_id = sys.argv[1]
 else:
     print("Aucun ID utilisateur fourni.")
     sys.exit(1)
+"""
+
+user_id = '40'
 
 # Création d'un répertoire temporaire spécifique à l'utilisateur
 BASE_PATH = '/Users/romain-pro/Desktop/factoryapp'
@@ -127,30 +132,27 @@ def get_final_url(url):
 
 
 
-def find_blog_or_news_section(url, user_temp_dir):
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            # Supposons que si nous obtenons une réponse, le blog est valide.
-            # Pas besoin de chercher spécifiquement du contenu 'blog' ou 'news' ici.
-            return url  # Retourne directement l'URL
-    except requests.RequestException as e:
-        print(f"Erreur lors de la recherche dans {url}: {e}")
-    return None
-
-# Liste pour stocker les chemins des fichiers de contenu blog ou news
-blog_or_news_files = []
-
-for competitor_url in user_sources['competitors']:
+def find_and_process_blog_url(competitor_url, found_blog_urls):
     test_blog_url = f"{competitor_url.rstrip('/')}/blog"
-    final_url = get_final_url(test_blog_url)
+    response = requests.get(test_blog_url, allow_redirects=True)
+    final_url = response.url if response.status_code == 200 else None
 
-    if final_url:
-        print(f"Blog trouvé pour {competitor_url}: {final_url}")
-        blog_or_news_files.append(final_url)  # Ajoutez directement l'URL du blog
+    if final_url and final_url != test_blog_url:
+        print(f"Redirection détectée. URL du blog pour {competitor_url}: {final_url}")
+        found_blog_urls.append(final_url)
+    elif final_url:
+        print(f"Blog valide trouvé pour {competitor_url}: {final_url}")
+        found_blog_urls.append(final_url)
+    else:
+        print(f"Aucun blog valide pour {competitor_url} avec '/blog'. Utilisation de l'URL de base comme URL de blog.")
+        found_blog_urls.append(competitor_url)
 
+found_blog_urls = []
+for competitor_url in user_sources.get('competitors', []):
+    find_and_process_blog_url(competitor_url, found_blog_urls)
 
-print(f"Voici les urls de blog :{blog_or_news_files}")
+print(f"Voici les urls de blog trouvées :{found_blog_urls}")
+
 
 # Initialisation de colorama
 colorama.init(autoreset=True)
@@ -209,7 +211,7 @@ def lire_prompt_extractgpt():
 prompt_extractgpt = lire_prompt_extractgpt()
 
 temp_files = []
-for blog_url in blog_or_news_files:
+for blog_url in found_blog_urls:
     print(f"Traitement du blog : {blog_url}")
     # Utilisez ici blog_url directement pour le scraping et l'analyse
     temp_file_name = scraper_et_sauvegarder_blog(blog_url)
@@ -424,9 +426,13 @@ try:
 except Exception as e:
     print(f"Erreur lors de la suppression du dossier temporaire {TEMP_DIR}: {e}")
 
+
+""""
 # Appel à User_trends.py avec l'ID de l'utilisateur
 path_to_user_trends = os.path.join(BASE_PATH, 'User_trends.py')
 subprocess.call(["python", path_to_user_trends, str(user_id)])
+"""
+
 
 # Fin du script
 sys.exit(0)

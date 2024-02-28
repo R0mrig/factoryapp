@@ -90,3 +90,24 @@ class Article(models.Model):
     Company_info = models.TextField(blank=True, null=True)
 
 
+
+class Trend(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Utilisateur")
+    titre = models.CharField(max_length=255, verbose_name="Titre")
+    resume = models.TextField(verbose_name="Résumé")
+    main_topics = models.TextField(verbose_name="Sujets Principaux")
+    secondary_topics = models.TextField(verbose_name="Sujets Secondaires")
+    ponderation = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Pondération")
+
+    def __str__(self):
+        return self.titre
+
+
+class LinkedInPost(models.Model):
+    postUrl = models.URLField(max_length=1024, verbose_name="URL du post")
+    postContent = models.TextField(verbose_name="Contenu du post")
+    profileUrl = models.URLField(max_length=1024, verbose_name="URL du profil")
+    postDate = models.CharField(max_length=100, verbose_name="Date du post")
+
+    def __str__(self):
+        return f"Post de {self.user.email} - {self.action}"

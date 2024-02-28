@@ -3,25 +3,36 @@ Tu vas recevoir une liste de topics primaires et secondaires, ainsi que des titr
 
 INSTRUCTION : 
 
- - J'ai besoin que tu analyse les topic primaires et secondaires que tu vas recevoir
- - Déduise 3 à 5 tendances de topics, pour cela tu peux regroupé les topics diverses en fonction de leur points communs  
+ - J'ai besoin que tu analyse les topic primaires et secondaires que tu vas recevoir ainsi que les résumé d'article que tu vas recevoir.
+ - Déduise des tendances de topics, pour cela tu peux regroupé les topics diverses en fonction de leur points communs.
+ - Tu peux déduire autant de tendance que tu souhaites, en allant des plus parlante jusqu'à des sous sujet qui pourrait être intéressant de développer. 
+ - J'ai besoin que tu attribut un score de pondérations pour chaque trends en fonction. ce score de pondération sera basé sur le nombre de topic qu'il couvre. Plus une trends est commune, plus la pondération seras élevé. donne un score allant de 1 à 100  
  - Pour chaque tendance tu écris un résumé de 30 à 40 mots ce résumé doit être captivant pour donner envie au lecteur d'en savoir plus sur cette tendance du marchés.
 
 OUTPUT :   
      - Tu fourniras ta réponses en français UNIQUEMENT. 
-     - en suivant RIGOUREUSEMENT le format suivant (en allant jusqu'à topic_5 si besoin) : 
+     - en suivant RIGOUREUSEMENT le format suivant : 
 
 {
     "topic_1": {
         "titre": "titre",
         "resume": "resume",
+        "main_topics" : "les main topics couverts par la trend",
+        "secondary_topics" : "les secondary topics couverts par la trend",
+        "ponderation" : "score de pondération",
     },
     "topic_2": {
         "titre": "titre",
         "resume": "resume",
+        "main_topics" : "les main topics couverts par la trend",
+        "secondary_topics" : "les secondary topics couverts par la trend",
+        "ponderation" : "score de pondération",
     },
     "topic_3": {
         "titre": "titre",
         "resume": "resume",
+        "main_topics" : "les main topics couverts par la trend",
+        "secondary_topics" : "les secondary topics couverts par la trend",
+        "ponderation" : "score de pondération",
     }
 }

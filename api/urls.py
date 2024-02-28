@@ -10,7 +10,8 @@ from .views import (
     suggest_for_tailor_content, 
     CustomTokenObtainPairView,
     TokenRefreshView,
-    TokenCreateView
+    TokenCreateView,
+    linkedin_post_create
 )
 
 urlpatterns = [
@@ -24,4 +25,6 @@ urlpatterns = [
     path('api/token/', TokenCreateView.as_view(), name='token_create'),  # Ajoutez ce chemin pour la génération de token
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('sign-up/', sign_up, name='sign-up'),
+    path('api/linkedin_post/', linkedin_post_create, name='linkedin_post_create'),
+
 ]

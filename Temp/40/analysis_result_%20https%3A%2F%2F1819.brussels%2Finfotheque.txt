@@ -1,0 +1,52 @@
+json_response_%20https%3A%2F%2F1819.brussels%2Finfotheque = '''{
+    "article_1": {
+        "titre": "Avant de démarrer une entreprise",
+        "lien": "https://1819.brussels/infotheque/avant-de-demarrer",
+        "date": ""
+    },
+    "article_2": {
+        "titre": "Démarrer une entreprise & formalités",
+        "lien": "https://1819.brussels/infotheque/demarrer-une-entreprise-formalites",
+        "date": ""
+    },
+    "article_3": {
+        "titre": "Développer son entreprise et exporter",
+        "lien": "https://1819.brussels/infotheque/developper-son-entreprise-et-exporter",
+        "date": ""
+    },
+    "article_4": {
+        "titre": "Transmettre, rebondir ou arrêter l'entreprise",
+        "lien": "https://1819.brussels/infotheque/transmettre-rebondir-ou-arreter-lentreprise",
+        "date": ""
+    },
+    "article_5": {
+        "titre": "Entreprendre durablement",
+        "lien": "https://1819.brussels/infotheque/entreprendre-durablement",
+        "date": ""
+    },
+    "article_6": {
+        "titre": "Subsides pour entrepreneurs",
+        "lien": "https://1819.brussels/infotheque/subsides-pour-entrepreneurs",
+        "date": ""
+    },
+    "article_7": {
+        "titre": "Financement de l'entreprise",
+        "lien": "https://1819.brussels/infotheque/financement-de-lentreprise",
+        "date": ""
+    },
+    "article_8": {
+        "titre": "Gestion & Stratégies",
+        "lien": "https://1819.brussels/infotheque/gestion-strategies",
+        "date": ""
+    },
+    "article_9": {
+        "titre": "Recrutement & ressources humaines",
+        "lien": "https://1819.brussels/infotheque/recrutement-ressources-humaines",
+        "date": ""
+    },
+    "article_10": {
+        "titre": "Marketing, vente & e-commerce",
+        "lien": "https://1819.brussels/infotheque/marketing-vente-e-commerce",
+        "date": ""
+    }
+}'''
