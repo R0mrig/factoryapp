@@ -32,16 +32,15 @@ def open_file(filepath):
 client = OpenAI(api_key=open_file("openaiapikey.txt"))
 
 
-""""
+
 # Récupérer l'ID de l'utilisateur depuis l'argument de la ligne de commande
 if len(sys.argv) > 1:
     user_id = sys.argv[1]
 else:
     print("Aucun ID utilisateur fourni.")
     sys.exit(1)
-"""
 
-user_id = '40'
+
 
 # Création d'un répertoire temporaire spécifique à l'utilisateur
 BASE_PATH = '/Users/romain-pro/Desktop/factoryapp'
@@ -271,7 +270,7 @@ def clean_and_combine_json(directory):
                     print(f"Erreur de décodage JSON dans le fichier {file_path}: {e}")
 
     return combined_data
-
+ 
 temp_dir_path = TEMP_DIR
 output_file_path = os.path.join(temp_dir_path, 'combined_articles.json')
 
@@ -427,11 +426,11 @@ except Exception as e:
     print(f"Erreur lors de la suppression du dossier temporaire {TEMP_DIR}: {e}")
 
 
-""""
+
 # Appel à User_trends.py avec l'ID de l'utilisateur
 path_to_user_trends = os.path.join(BASE_PATH, 'User_trends.py')
 subprocess.call(["python", path_to_user_trends, str(user_id)])
-"""
+
 
 
 # Fin du script
