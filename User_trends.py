@@ -45,6 +45,8 @@ else:
     print("Aucun ID utilisateur fourni.")
     sys.exit(1)
 
+
+
 ### Trends & topics GENERATION ###
 
 
@@ -127,6 +129,7 @@ def lire_prompt_trendsgpt():
 
 def analyser_tendances_avec_IA(data, prompt_trendsgpt):
     data_json = json.dumps(data, indent=4, ensure_ascii=False)
+    print("Data JSON envoyé:", data_json)  # Pour debug
     prompt_complet = prompt_trendsgpt
     messages = [{"role": "system", "content": prompt_complet}, 
                 {"role": "user", "content": data_json}]
@@ -203,6 +206,7 @@ def lire_prompt_suggestiongpt():
 
 def analyser_suggestions_avec_IA(data, prompt_suggestiongpt):
     data_json = json.dumps(data, indent=4, ensure_ascii=False)
+    print("Data JSON envoyé:", data_json)  # Pour debug
     prompt_complet = prompt_suggestiongpt
     messages = [{"role": "system", "content": prompt_complet}, 
                 {"role": "user", "content": data_json}]

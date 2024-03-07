@@ -72,14 +72,10 @@ def analyser_contenu_avec_writergpt(prompt_complet, prompt_writergpt):
         print(Fore.RED + f"Erreur lors de l'analyse IA avec WriterGPT : {e}")
         return None
 
-def envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url, email):
+def envoyer_a_bubble_contenu(data, webhook_url):
     try:
-        with open(titre_filename, 'r', encoding='utf-8') as file:
-            titre_content = file.read()
-        with open(contenu_filename, 'r', encoding='utf-8') as file:
-            contenu_content = file.read()
-        data = {"titre": titre_content, "contenu": contenu_content, "email": email}
         headers = {'Content-Type': 'application/json'}
+        # Conversion de data en JSON et envoi via POST
         response = requests.post(webhook_url, headers=headers, json=data)
         return response.status_code, response.text
     except Exception as e:
@@ -87,22 +83,22 @@ def envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url, emai
         return None, str(e)
 
 def main(data):
-    user_id = data.get("user_id", 1) 
+    user_id = data.get("user_id", 1)
     titles_and_summaries = get_user_trends_data(user_id)
     prompt_complet = create_writergpt_prompt(data, titles_and_summaries)
     response_data = analyser_contenu_avec_writergpt(prompt_complet, lire_prompt_writergpt())
 
     if response_data:
         titre_genere, contenu_genere = (response_data.split("SEPARATION", 1) if "SEPARATION" in response_data else ("", ""))
-        titre_filename = "titre_genere.txt"
-        contenu_filename = "contenu_genere.txt"
-        with open(titre_filename, 'w', encoding='utf-8') as file:
-            file.write(titre_genere)
-        with open(contenu_filename, 'w', encoding='utf-8') as file:
-            file.write(contenu_genere)
+
+        # Remplacement des valeurs dans l'objet data
+        data['title'] = titre_genere  # Mise à jour de title
+        data['base_content'] = contenu_genere  # Mise à jour de base_content
+
         webhook_url = "https://laurent-60818.bubbleapps.io/version-test/api/1.1/wf/content_generation_content"
-        email = data.get('email', '')  # Récupération de l'email depuis les données
-        status, text = envoyer_a_bubble_contenu(titre_filename, contenu_filename, webhook_url, email)
+        
+        # Envoi de data modifié au webhook
+        status, text = envoyer_a_bubble_contenu(data, webhook_url)
         print(f"Envoi des données - Status: {status}, Response: {text}")
     else:
         print(Fore.RED + "Erreur lors de la génération du contenu.")

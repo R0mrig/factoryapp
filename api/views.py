@@ -145,7 +145,6 @@ def execute_trends(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def create_article(request):
     serializer = ArticleSerializer(data=request.data)
     if serializer.is_valid():
@@ -162,7 +161,8 @@ def create_article(request):
             "content_size": serializer.validated_data['content_size'],
             "goals": serializer.validated_data['goals'],
             "email": serializer.validated_data.get('email', ''),
-            "Company_info": serializer.validated_data.get('Company_info', '') 
+            "Company_info": serializer.validated_data.get('Company_info', '') ,
+            "ID_content": serializer.validated_data.get('ID_content', '') 
         })
 
         # Exécuter le script test.py avec les données validées

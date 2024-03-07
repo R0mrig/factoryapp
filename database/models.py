@@ -88,6 +88,8 @@ class Article(models.Model):
     content_size = models.CharField(max_length=200, null=True, default="")
     email = models.EmailField(max_length=254, default='')
     Company_info = models.TextField(blank=True, null=True)
+    ID_content = models.CharField(max_length=200, blank=True, null=True)  
+
 
 
 
